@@ -1,0 +1,19 @@
+{
+  "name": "display-dev",
+  "version": "0.1.0",
+  "description": "Publish HTML or Markdown files behind company authentication, public sharing, or a private link.",
+  "author": { "name": "display.dev", "url": "https://display.dev" },
+  "homepage": "https://display.dev",
+  "repository": "https://github.com/display-dev/skill",
+  "license": "MIT",
+  "keywords": ["display.dev", "publish", "share", "sso", "company-auth"],
+  "interface": {
+    "displayName": "display.dev",
+    "shortDescription": "Publish files behind company auth or share publicly.",
+    "longDescription": "display.dev lets agents publish HTML and Markdown files as shareable URLs behind company authentication (Google Workspace or Microsoft 365 SSO), share publicly, or share with specific email addresses. Anonymous publishing is supported with a 30-day claim window. See https://display.dev/docs for the full feature set.",
+    "developerName": "display.dev",
+    "category": "Coding",
+    "websiteURL": "https://display.dev",
+    "logo": "./assets/logo.svg"
+  }
+}

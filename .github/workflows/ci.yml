@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: chmod +x bin/sync-mounts.sh display-dev/scripts/*.sh
+
+      - name: Mounts byte-identical (canonical → mirrors)
+        run: bin/sync-mounts.sh --check
+
+      - name: Plugin manifests parse as JSON
+        run: |
+          jq empty .cursor-plugin/plugin.json
+          jq empty .codex-plugin/plugin.json
+
+      - name: Bash syntax check
+        run: |
+          bash -n display-dev/scripts/_common.sh
+          bash -n display-dev/scripts/publish.sh
+          bash -n display-dev/scripts/login.sh
+          bash -n display-dev/scripts/share.sh
+
+      - name: ShellCheck
+        # Pinned to v2.0.0 by full commit SHA — public-repo supply-chain
+        # hygiene; floating branch refs let upstream rewrite history.
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
+        with:
+          scandir: ./display-dev/scripts
+          severity: warning
+
+      # Deliberately no wire-level smoke against a spawned API. The
+      # bash helpers here are thin shell glue with no business logic of
+      # their own — syntax + shellcheck above is the appropriate gate.
+      # The HTTP contracts they hit (POST /v1/public/artifacts and the
+      # OTP / auth-check endpoints) are stable display.dev surfaces;
+      # any drift would surface in `@displaydev/cli`'s own tests before
+      # reaching the skill.
