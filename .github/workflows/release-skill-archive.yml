@@ -1,0 +1,256 @@
+name: Release skill archive
+
+# Publishes a `--latest` GitHub release on every push to main with three
+# assets that display.dev's /.well-known/agent-skills/* route handler
+# proxies:
+#   - SKILL.md (release-level standalone copy)
+#   - display-dev.tar.gz (deterministic tarball; SKILL.md at archive root)
+#   - checksums.json (sha256 + size of both assets + sourceSha + builtAt)
+#
+# The website resolves https://github.com/display-dev/skill/releases/latest/download/<asset>
+# (GitHub-resolved "is the latest release" pointer) — so the release here
+# must be a non-prerelease release marked latest, and must contain all
+# three assets at the canonical filenames above.
+#
+# Lifecycle:
+#   1. Create a dated immutable tag `release-<sourceSha>-<unix>` with
+#      `--latest=false` (gh defaults to auto-detect latest, which would
+#      race ahead before the verify step succeeds — explicit is safer).
+#   2. Verify the three asset URLs are 200-able from outside via the
+#      dated-tag download path (not /releases/latest/download/).
+#   3. Mark the dated release latest with `gh release edit --latest`.
+#      This is the published pointer the website consumes.
+#   4. Retention sweep: keep the latest 10 dated releases, delete the
+#      rest. Older releases stay reachable by tag-specific URL even
+#      after a newer release takes the latest flag — useful for forensics.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-skill-archive
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Sanity-check skill mirrors are in sync
+        run: bin/sync-mounts.sh --check
+
+      - name: Compute identifiers
+        id: ids
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          UNIX="$(date -u +%s)"
+          TAG="release-${SOURCE_SHA}-${UNIX}"
+          BUILT_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "source_sha=${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
+          echo "unix=${UNIX}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "built_at=${BUILT_AT}" >> "$GITHUB_OUTPUT"
+
+      - name: Build deterministic archive + standalone SKILL.md
+        id: build
+        run: |
+          set -euo pipefail
+          # Deterministic tar: sorted entries, epoch mtime, no owner/group
+          # metadata, no xattrs, POSIX ustar format. `-C` so SKILL.md
+          # lives at archive root (Cloudflare Agent Skills Discovery
+          # RFC v0.2.0 expects archive contents to mount at
+          # ~/.claude/skills/<name>/ directly). `--exclude='.DS_Store'`
+          # is defense in depth — git ignores it, but a stray local
+          # commit would break determinism otherwise. `gzip -n` strips
+          # the gzip-header filename + timestamp.
+          tar --sort=name --mtime='1970-01-01' --owner=0 --group=0 \
+              --numeric-owner --no-xattrs --format=ustar \
+              --exclude='.DS_Store' \
+              -C skills/display-dev -cf - . | gzip -n > display-dev.tar.gz
+
+          cp skills/display-dev/SKILL.md SKILL.md
+
+          ARCHIVE_SHA="$(sha256sum display-dev.tar.gz | awk '{print $1}')"
+          ARCHIVE_SIZE="$(stat -c %s display-dev.tar.gz)"
+          SKILL_MD_SHA="$(sha256sum SKILL.md | awk '{print $1}')"
+          SKILL_MD_SIZE="$(stat -c %s SKILL.md)"
+
+          echo "archive_sha=${ARCHIVE_SHA}" >> "$GITHUB_OUTPUT"
+          echo "archive_size=${ARCHIVE_SIZE}" >> "$GITHUB_OUTPUT"
+          echo "skill_md_sha=${SKILL_MD_SHA}" >> "$GITHUB_OUTPUT"
+          echo "skill_md_size=${SKILL_MD_SIZE}" >> "$GITHUB_OUTPUT"
+
+      - name: Archive safety smoke
+        # Defends against a future SKILL.md change adding a symlink, a
+        # nested directory escape, or balloons the archive past the cap.
+        # The website route handler streams these bytes byte-for-byte,
+        # so any malicious shape ships to every agent that resolves
+        # /releases/latest/download/display-dev.tar.gz.
+        run: |
+          set -euo pipefail
+          # No absolute paths.
+          if tar -tzf display-dev.tar.gz | grep -qE '^/'; then
+            echo "archive contains absolute paths"; exit 1
+          fi
+          # No `..` traversal.
+          if tar -tzf display-dev.tar.gz | grep -qE '(^|/)\.\.(/|$)'; then
+            echo "archive contains .. path components"; exit 1
+          fi
+          # No symlinks (the K flag prints L for symlinks; tvf is more direct).
+          if tar -tzvf display-dev.tar.gz | awk '{print $1}' | grep -qE '^l'; then
+            echo "archive contains symlinks"; exit 1
+          fi
+          # SKILL.md sits at archive root, not inside skills/display-dev/.
+          if ! tar -tzf display-dev.tar.gz | grep -qxF './SKILL.md'; then
+            echo "archive missing ./SKILL.md at root"; exit 1
+          fi
+          if tar -tzf display-dev.tar.gz | grep -qE '^skills/'; then
+            echo "archive has nested skills/ prefix — tar -C bug"; exit 1
+          fi
+          # Unpacked size cap: 10 MiB.
+          UNPACKED="$(tar -tzvf display-dev.tar.gz | awk '{sum+=$3} END {print sum}')"
+          if [ "${UNPACKED:-0}" -gt 10485760 ]; then
+            echo "unpacked archive > 10 MiB: ${UNPACKED}"; exit 1
+          fi
+
+      - name: Determinism check (build twice; SHAs must match)
+        # Catches a non-deterministic touchpoint (timestamps, owner,
+        # unstable sort) before it lands as a real release.
+        run: |
+          set -euo pipefail
+          tar --sort=name --mtime='1970-01-01' --owner=0 --group=0 \
+              --numeric-owner --no-xattrs --format=ustar \
+              --exclude='.DS_Store' \
+              -C skills/display-dev -cf - . | gzip -n > display-dev.tar.gz.2
+          SHA1="$(sha256sum display-dev.tar.gz | awk '{print $1}')"
+          SHA2="$(sha256sum display-dev.tar.gz.2 | awk '{print $1}')"
+          if [ "$SHA1" != "$SHA2" ]; then
+            echo "non-deterministic build: $SHA1 != $SHA2"
+            exit 1
+          fi
+          rm -f display-dev.tar.gz.2
+
+      - name: Write checksums.json
+        run: |
+          set -euo pipefail
+          cat > checksums.json <<EOF
+          {
+            "skillMd":   { "sha256": "${{ steps.build.outputs.skill_md_sha }}", "size": ${{ steps.build.outputs.skill_md_size }} },
+            "archive":   { "sha256": "${{ steps.build.outputs.archive_sha }}", "size": ${{ steps.build.outputs.archive_size }} },
+            "sourceSha": "${{ steps.ids.outputs.source_sha }}",
+            "builtAt":   "${{ steps.ids.outputs.built_at }}"
+          }
+          EOF
+          # Validate the file is JSON the website can parse (matches the
+          # zod schema at website/src/app/.well-known/agent-skills/[...path]/route.ts).
+          python3 -c 'import json,sys; d=json.load(open("checksums.json")); assert "skillMd" in d and "archive" in d and "sourceSha" in d and "builtAt" in d'
+
+      - name: Create dated release (not latest yet)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # --latest=false is required: gh release create defaults to
+          # auto-detecting the latest release as the most-recent
+          # non-prerelease — without the explicit flag, the new release
+          # would race ahead and become "latest" before the verify
+          # step below has confirmed the asset URLs work.
+          # --target pinned to the exact source_sha (not `main`) so a
+          # queued older run can't point its tag at a newer main commit
+          # than the assets it actually built.
+          gh release create "${{ steps.ids.outputs.tag }}" \
+            --target "${{ steps.ids.outputs.source_sha }}" \
+            --latest=false \
+            --title "${{ steps.ids.outputs.tag }}" \
+            --notes "Automated release from ${{ steps.ids.outputs.source_sha }} at ${{ steps.ids.outputs.built_at }}." \
+            SKILL.md display-dev.tar.gz checksums.json
+
+      - name: Verify dated-tag download URLs are 200-able
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          REPO="${{ github.repository }}"
+          TAG="${{ steps.ids.outputs.tag }}"
+          # GitHub's release-asset CDN occasionally serves 404 briefly
+          # right after `gh release create` returns. Explicit
+          # 6-attempt loop with 5s sleep totals ~30s of grace per
+          # asset. The `|| printf '000'` clause below keeps a
+          # transport-level curl failure from killing the whole step
+          # under `set -e`; it falls through to the retry path the
+          # same as an HTTP 404.
+          for asset in SKILL.md display-dev.tar.gz checksums.json; do
+            url="https://github.com/${REPO}/releases/download/${TAG}/${asset}"
+            code=""
+            for attempt in 1 2 3 4 5 6; do
+              # `|| printf '000'` keeps a transport-level failure
+              # (DNS, TLS handshake, connection reset) from killing
+              # the step under `set -e` — the sentinel '000' falls
+              # through to the retry path same as an HTTP 404.
+              code="$(curl -sSL -o /dev/null -w '%{http_code}' "$url" || printf '000')"
+              if [ "$code" = "200" ]; then
+                break
+              fi
+              echo "verify attempt $attempt: $url -> $code, retrying in 5s"
+              sleep 5
+            done
+            if [ "$code" != "200" ]; then
+              echo "verify failed: $url (HTTP $code after retries)"
+              exit 1
+            fi
+            echo "verified: $url"
+          done
+
+      - name: Mark dated release as latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # gh release edit --latest flips the "is the latest release"
+          # flag GitHub uses to resolve /releases/latest/download/. The
+          # website's route handler reads via that path.
+          gh release edit "${{ steps.ids.outputs.tag }}" --latest
+
+      - name: Retention sweep (keep newest 10 dated releases)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # gh release list orders newest-first by default. The jq filter
+          # matches exactly this workflow's tag shape:
+          # release-<40-hex-sha>-<unix>. Anything else (release-notes,
+          # release-candidate, a human-created tag, …) is untouched.
+          # Drop the first 10 from the matched list, delete the rest.
+          PATTERN='^release-[0-9a-f]{40}-[0-9]+$'
+          TO_DELETE=$(gh release list --limit 100 --json tagName \
+                       --jq "[.[] | select(.tagName | test(\"${PATTERN}\")) | .tagName] | .[10:][]")
+          if [ -z "${TO_DELETE}" ]; then
+            echo "retention sweep: nothing to prune"
+            exit 0
+          fi
+          # Try every delete, collect failures, surface non-zero exit
+          # at the end so the workflow reflects reality. Don't `|| true`
+          # — a silent failure here means the sweep doesn't actually
+          # shrink the release list and the next run repeats the same
+          # work.
+          failed=()
+          while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            echo "pruning $tag"
+            if ! gh release delete "$tag" --yes --cleanup-tag; then
+              failed+=("$tag")
+            fi
+          done <<< "${TO_DELETE}"
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "retention sweep failed for: ${failed[*]}"
+            exit 1
+          fi
