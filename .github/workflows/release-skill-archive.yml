@@ -95,25 +95,36 @@ jobs:
         # The website route handler streams these bytes byte-for-byte,
         # so any malicious shape ships to every agent that resolves
         # /releases/latest/download/display-dev.tar.gz.
+        #
+        # GNU tar (on ubuntu-latest) omits the leading ./ on entry
+        # names; BSD tar adds it. Regexes below accept both forms so
+        # the workflow doesn't lock to one tar build.
         run: |
           set -euo pipefail
+          echo "::group::archive contents"
+          tar -tzvf display-dev.tar.gz
+          echo "::endgroup::"
+          ENTRIES="$(tar -tzf display-dev.tar.gz)"
           # No absolute paths.
-          if tar -tzf display-dev.tar.gz | grep -qE '^/'; then
+          if printf '%s\n' "${ENTRIES}" | grep -qE '^/'; then
             echo "archive contains absolute paths"; exit 1
           fi
           # No `..` traversal.
-          if tar -tzf display-dev.tar.gz | grep -qE '(^|/)\.\.(/|$)'; then
+          if printf '%s\n' "${ENTRIES}" | grep -qE '(^|/)\.\.(/|$)'; then
             echo "archive contains .. path components"; exit 1
           fi
-          # No symlinks (the K flag prints L for symlinks; tvf is more direct).
+          # No symlinks. Column 1 of tar -tzvf is the mode string;
+          # symlinks start with 'l', regular files with '-', dirs 'd'.
           if tar -tzvf display-dev.tar.gz | awk '{print $1}' | grep -qE '^l'; then
             echo "archive contains symlinks"; exit 1
           fi
-          # SKILL.md sits at archive root, not inside skills/display-dev/.
-          if ! tar -tzf display-dev.tar.gz | grep -qxF './SKILL.md'; then
-            echo "archive missing ./SKILL.md at root"; exit 1
+          # SKILL.md sits at archive root — accept either ./SKILL.md
+          # (BSD tar) or SKILL.md (GNU tar) as the entry name.
+          if ! printf '%s\n' "${ENTRIES}" | grep -qE '^(\./)?SKILL\.md$'; then
+            echo "archive missing SKILL.md at root"; exit 1
           fi
-          if tar -tzf display-dev.tar.gz | grep -qE '^skills/'; then
+          # No nested skills/ prefix (would indicate -C didn't take).
+          if printf '%s\n' "${ENTRIES}" | grep -qE '^(\./)?skills/'; then
             echo "archive has nested skills/ prefix — tar -C bug"; exit 1
           fi
           # Unpacked size cap: 10 MiB.
