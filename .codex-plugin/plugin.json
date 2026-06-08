@@ -1,6 +1,6 @@
 {
   "name": "display-dev",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Publish HTML or Markdown files behind company authentication, public sharing, or a private link.",
   "author": { "name": "display.dev", "url": "https://display.dev" },
   "homepage": "https://display.dev",

@@ -68,9 +68,11 @@ Environment variables the helpers read:
 
 Stderr carries a human-readable summary plus a graduation prompt instructing the agent to offer inline signup (email + OTP). The anonymous artifact does NOT auto-transfer post-signup — offer a fresh re-publish, or point at the browser claim URL.
 
-**Authenticated**, or any extra flag (`--visibility`, `--share-with`, `--name`, `--id`, `--theme`, `--show-branding`, …): the script execs `dsp publish` and the CLI takes over. Stdout in that branch is **two lines** — the artifact URL on line 1, then a `Published <name> (<shortId>) vN` (or `Updated …`) summary on line 2 — not JSON. Tell the user the URL from line 1 and treat line 2 as a short confirmation.
+**Authenticated**, or any extra flag (`--visibility`, `--share-with`, `--name`, `--id`, `--theme`, `--show-branding`, `--reload`, …): the script execs `dsp publish` and the CLI takes over. Stdout in that branch is **two lines** — the artifact URL on line 1, then a `Published <name> (<shortId>) vN` (or `Updated …`) summary on line 2 — not JSON. Tell the user the URL from line 1 and treat line 2 as a short confirmation.
 
 Both branches send `X-Client-Type: cli` plus a `X-Client-Source` distribution-channel tag for analytics; the actual publish contract is otherwise the same as `dsp publish`.
+
+**Hot reload (`--reload`)**: trigger an immediate refresh on currently-connected viewers — only useful for an author iterating in a single open tab (`/visualize:polish` flows, `dsp publish --reload --id <shortId>` cycles). Omit for audience-review publishes; the default polite-morph behavior surfaces a Refresh affordance instead of yanking readers mid-comment. The signal lives for ~10min, broadcasts to every viewer of the same shortId, and is version-scoped (a non-reload publish that follows doesn't ride the prior signal's TTL window).
 
 ## Get a permanent URL
 

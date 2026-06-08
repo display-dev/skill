@@ -25,10 +25,9 @@ jobs:
 
       - name: Bash syntax check
         run: |
-          bash -n display-dev/scripts/_common.sh
-          bash -n display-dev/scripts/publish.sh
-          bash -n display-dev/scripts/login.sh
-          bash -n display-dev/scripts/share.sh
+          for script in display-dev/scripts/*.sh; do
+            bash -n "$script"
+          done
 
       - name: ShellCheck
         # Pinned to v2.0.0 by full commit SHA — public-repo supply-chain
