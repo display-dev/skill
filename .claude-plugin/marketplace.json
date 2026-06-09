@@ -1,0 +1,31 @@
+{
+  "name": "display-dev",
+  "owner": {
+    "name": "display.dev"
+  },
+  "description": "display.dev plugins for publishing AI-generated artifacts behind company auth.",
+  "plugins": [
+    {
+      "name": "display-dev",
+      "source": {
+        "source": "github",
+        "repo": "display-dev/skill"
+      },
+      "description": "Publish HTML or Markdown files as shareable display.dev URLs behind company auth, company SSO, named-email access, or a 30-day anonymous claim link.",
+      "version": "0.1.2",
+      "author": {
+        "name": "display.dev",
+        "url": "https://display.dev"
+      },
+      "category": "Productivity",
+      "tags": [
+        "publish",
+        "share",
+        "html",
+        "markdown",
+        "sso",
+        "agent-skills"
+      ]
+    }
+  ]
+}

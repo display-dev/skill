@@ -8,6 +8,13 @@ Public agent skill that teaches your AI assistant how to publish, share, and sig
 npx skills add display-dev/skill --skill display-dev
 ```
 
+Claude Code plugin marketplace:
+
+```sh
+/plugin marketplace add display-dev/skill
+/plugin install display-dev@display-dev
+```
+
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
 ## What you get
