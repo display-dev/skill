@@ -4,12 +4,14 @@
 
 set -euo pipefail
 
-# Consumed by publish.sh and login.sh after sourcing this file. ShellCheck
-# can't follow into the sourcers, so silence its unused-variable warning
-# rather than `export`-ing (we don't want API_URL leaking into child curl
-# processes' environment — it's a shell-scope helper, not an env contract).
+# Consumed by publish.sh after sourcing this file. ShellCheck can't
+# follow into the sourcer, so silence its unused-variable warning rather
+# than `export`-ing (we don't want API_URL leaking into child curl
+# processes' environment). Public skill helpers always target
+# production; authenticated workflows delegate to `dsp`, which owns
+# auth resolution and any advanced environment targeting.
 # shellcheck disable=SC2034
-API_URL="${DISPLAYDEV_API_URL:-https://api.display.dev}"
+API_URL="https://api.display.dev"
 
 # Resolve the bundled jq binary for the current platform. The skill
 # ships statically-linked jq 1.7.1 binaries for the five common
@@ -47,7 +49,7 @@ fi
 # `display-dev-skill@<version>` and is read by display.dev's analytics
 # to attribute publish events to a specific skill release. Set
 # `SKILL_VERSION_OVERRIDE` to test attribution locally without retagging.
-SKILL_VERSION="${SKILL_VERSION_OVERRIDE:-0.1.1}"
+SKILL_VERSION="${SKILL_VERSION_OVERRIDE:-0.1.2}"
 
 # Attribution: env var > skill default. Same value is sent as the CLI's
 # `--client-source` flag (Tier 2) or the curl `X-Client-Source` header
@@ -83,37 +85,12 @@ require_jq_or_exit() {
 }
 
 # Tier-1 helper: wrap curl to add attribution headers consistently.
-# X-Actor-Name / X-Actor-Type are conditional pass-throughs from the
-# matching env vars. They are part of a planned actor-attribution
-# surface — today the server does not yet consume them on the comments
-# path (audit rows still attribute to the credential owner). The
-# helpers forward them so the wire is ready when the rollout lands;
-# until then the load-bearing agent-vs-human signal is the body
-# sentinel (`comment-reply.sh` + `comments-stream.sh`). X-Client-Source
-# is always sent.
+# Used only for unauthenticated public publish; authenticated workflows
+# delegate to `dsp` so these scripts never send bearer tokens directly.
+# X-Client-Source is always sent.
 curl_api() {
   curl -sS \
     -H "X-Client-Type: cli" \
     -H "X-Client-Source: $CLIENT_SOURCE" \
-    ${DISPLAYDEV_ACTOR_NAME:+-H "X-Actor-Name: $DISPLAYDEV_ACTOR_NAME"} \
-    ${DISPLAYDEV_ACTOR_TYPE:+-H "X-Actor-Type: $DISPLAYDEV_ACTOR_TYPE"} \
     "$@"
-}
-
-# Resolve the bearer token used by authenticated endpoints. Precedence
-# matches the CLI's `resolveAuth`: env var DISPLAYDEV_API_KEY wins over
-# the persisted config file. Prints the token to stdout, or empty
-# string if neither source is configured — callers check `[[ -z ]]` and
-# surface their own "run login.sh first" hint.
-resolve_token() {
-  if [[ -n "${DISPLAYDEV_API_KEY:-}" ]]; then
-    printf '%s' "$DISPLAYDEV_API_KEY"
-    return 0
-  fi
-  if [[ -r "$HOME/.displaydev/config.json" ]]; then
-    require_jq_or_exit
-    "$JQ" -r '.token // empty' "$HOME/.displaydev/config.json" 2>/dev/null || printf ''
-    return 0
-  fi
-  printf ''
 }

@@ -24,24 +24,5 @@ if printf '%s' "$ROOT" | LC_ALL=C grep -qE '[^A-Za-z0-9-]'; then
   echo "thread-resolve.sh: --root contains invalid characters" >&2; exit 1
 fi
 
-require_jq_or_exit
-
-TOKEN=$(resolve_token)
-if [[ -z "$TOKEN" ]]; then
-  echo "thread-resolve.sh: not signed in (no DISPLAYDEV_API_KEY env or ~/.displaydev/config.json). Run login.sh." >&2
-  exit 1
-fi
-
-RESPONSE=$(curl_api -X POST "$API_URL/v1/comments/$ROOT/resolve" \
-  -H "Authorization: Bearer $TOKEN" \
-  -w "\n%{http_code}" || true)
-HTTP_CODE=$(printf '%s' "$RESPONSE" | tail -n 1)
-BODY=$(printf '%s' "$RESPONSE" | sed '$d')
-
-if [[ "$HTTP_CODE" != "200" ]]; then
-  MSG=$("$JQ" -r '.message // ""' <<<"$BODY" 2>/dev/null || printf '')
-  echo "thread-resolve.sh: API returned $HTTP_CODE${MSG:+: $MSG}" >&2
-  exit 1
-fi
-
-printf '%s\n' "$BODY"
+require_dsp_or_exit
+exec $DSP_CMD thread --client-source "$CLIENT_SOURCE" resolve "$ROOT"

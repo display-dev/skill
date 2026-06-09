@@ -41,16 +41,15 @@ Useful entry points:
 
 ## Requirements
 
-- **Every helper** needs `bash` + `curl`. The skill bundles `jq` (1.7.1) for the five common platforms — macOS / Linux on amd64 + arm64, plus Windows amd64 — under `display-dev/bin/`. Each script auto-resolves to the right binary at startup; falls through to a system `jq` on PATH for any platform not covered by the bundle (BSD, Alpine on exotic arch, NixOS, etc.). No Node, no Python, no other runtimes for the publish / login / comment-iteration helpers.
-- **Tier 2 fall-throughs** (authenticated publish with flags, multifile, `share`, SSO login) need `dsp` on PATH **or** `npx` (so the helper can run `npx -y @displaydev/cli`). Tier 1 hot paths (anonymous single-file publish, OTP register / verify) and the comment-iteration helpers stay on raw `bash + curl + bundled jq` — no CLI required.
-- Optional credential file `~/.displaydev/config.json` (shape: `{ "token": string, "apiUrl"?: string }`) written automatically by `login.sh` or `dsp login`. Same schema the CLI writes — interoperable in both directions.
+- **Every helper** needs `bash`; anonymous publish also needs `curl`. The skill bundles `jq` (1.7.1) for the five common platforms — macOS / Linux on amd64 + arm64, plus Windows amd64 — under `display-dev/bin/`. `comments-stream.sh` uses `jq` to filter comment JSON and auto-resolves to the bundled binary; it falls through to a system `jq` on PATH for any platform not covered by the bundle (BSD, Alpine on exotic arch, NixOS, etc.).
+- **Authenticated workflows** (login, authenticated publish, sharing, comments, thread resolution) delegate to the display.dev CLI via `dsp` on PATH **or** `npx` (so the helper can run `npx -y @displaydev/cli`). The public skill scripts do not resolve or send bearer tokens directly. The only raw `curl` API path left in the skill is anonymous publish to `POST https://api.display.dev/v1/public/artifacts`.
+- Optional credential file `~/.displaydev/config.json` is written by `dsp login`. The skill scripts treat it only as a presence signal for choosing authenticated publish mode; credential parsing is owned by the CLI.
 
 Environment variables the helpers read:
 
 - `DISPLAYDEV_API_KEY` — overrides the config file's `token`. Highest precedence.
-- `DISPLAYDEV_API_URL` — overrides the API base URL. Defaults to production.
 - `DISPLAYDEV_CLIENT_SOURCE` — overrides the default `display-dev-skill@<version>` distribution-channel tag used for funnel analytics.
-- `DISPLAYDEV_ACTOR_NAME` / `DISPLAYDEV_ACTOR_TYPE` — optional agent-identity headers, forwarded to the API when set. Use when the host process self-identifies (e.g., `claude-code@1.0.45`).
+- `DISPLAYDEV_ACTOR_NAME` / `DISPLAYDEV_ACTOR_TYPE` — optional agent-identity values forwarded by `dsp` on authenticated workflows. Use when the host process self-identifies (e.g., `claude-code@1.0.45`).
 
 ## Publish a file
 
@@ -68,7 +67,7 @@ Environment variables the helpers read:
 
 Stderr carries a human-readable summary plus a graduation prompt instructing the agent to offer inline signup (email + OTP). The anonymous artifact does NOT auto-transfer post-signup — offer a fresh re-publish, or point at the browser claim URL.
 
-**Authenticated**, or any extra flag (`--visibility`, `--share-with`, `--name`, `--id`, `--theme`, `--show-branding`, `--reload`, …): the script execs `dsp publish` and the CLI takes over. Stdout in that branch is **two lines** — the artifact URL on line 1, then a `Published <name> (<shortId>) vN` (or `Updated …`) summary on line 2 — not JSON. Tell the user the URL from line 1 and treat line 2 as a short confirmation.
+**Authenticated**, or any extra flag (`--visibility`, `--share-with`, `--name`, `--id`, `--theme`, `--show-branding`, `--reload`, …): the script execs `dsp publish` and the CLI takes over. With credentials configured, stdout in that branch is **two lines** — the artifact URL on line 1, then a `Published <name> (<shortId>) vN` (or `Updated …`) summary on line 2 — not JSON. Without credentials, `dsp publish` still uses the anonymous public-publish flow and returns the claim JSON. Tell the user the canonical URL from the actual stdout shape: line 1 for authenticated publishes, or `previewUrl` for anonymous JSON.
 
 Both branches send `X-Client-Type: cli` plus a `X-Client-Source` distribution-channel tag for analytics; the actual publish contract is otherwise the same as `dsp publish`.
 
@@ -76,14 +75,14 @@ Both branches send `X-Client-Type: cli` plus a `X-Client-Source` distribution-ch
 
 ## Get a permanent URL
 
-The same flow handles three audiences — existing display.dev members, anyone claiming an anonymous publish, and brand-new users signing up from scratch (a first-time email auto-creates the account on verified OTP, with a default org bootstrapped behind it):
+The same CLI-backed flow handles three audiences — existing display.dev members, anyone claiming an anonymous publish, and brand-new users signing up from scratch (a first-time email auto-creates the account on verified OTP, with a default org bootstrapped behind it):
 
 ```sh
 ./scripts/login.sh --email <email>
 ./scripts/login.sh --email <email> --code <code>
 ```
 
-The first call sends a one-time code to the email and exits 0. The second verifies the code, writes `~/.displaydev/config.json`, and prints `Signed in as <email>.` Re-running `publish.sh` on the same machine then goes through the authenticated path.
+The first call delegates to `dsp login`, sends a one-time code to the email, and exits 0. The second delegates to `dsp login` again, verifies the code, writes `~/.displaydev/config.json`, and prints `Signed in as <email>.` Re-running `publish.sh` on the same machine then goes through the authenticated path.
 
 If the email belongs to an SSO-required organization, the script defers to `dsp login` (device-code flow needs a browser, polling, and backoff — not bash-tractable). The user sees the install hint if `dsp` and `npx` are both missing.
 
@@ -202,7 +201,7 @@ export DISPLAYDEV_ACTOR_NAME="claude-code@1.0.45"   # or pi-coding-agent@x.y, co
 export DISPLAYDEV_ACTOR_TYPE="agent"
 ```
 
-`curl_api` forwards both as `X-Actor-Name` / `X-Actor-Type`. The server normalises them with credential and transport signals into a four-value `actorType` (`human` / `agent` / `service` / `system`) plus an optional `actorName`, attaches both to written records (comments, audit events, version history), and surfaces the result in the comments widget (`{actorName} on behalf of {userName}` for agent-authored comments), the dashboard's version-history table, and the audit-log page. When these env vars are set, the agent-vs-human signal flows end-to-end — the audit trail records the agent identity alongside the credential owner.
+`dsp` forwards both as `X-Actor-Name` / `X-Actor-Type` on authenticated workflows. The server normalises them with credential and transport signals into a four-value `actorType` (`human` / `agent` / `service` / `system`) plus an optional `actorName`, attaches both to written records (comments, audit events, version history), and surfaces the result in the comments widget (`{actorName} on behalf of {userName}` for agent-authored comments), the dashboard's version-history table, and the audit-log page. When these env vars are set, the agent-vs-human signal flows end-to-end — the audit trail records the agent identity alongside the credential owner.
 
 `comment-reply.sh` and `comments-stream.sh` also share a body-sentinel convention as a belt-and-suspenders self-loop fuse, complementing the header path. When `DISPLAYDEV_ACTOR_TYPE=agent`, `comment-reply.sh` prepends `[claude-bot] ` (or the value of `DISPLAYDEV_REPLY_SENTINEL`) to the body; `comments-stream.sh` reads the same default and drops matching comments before emission. The header alone would be enough for attribution display, but the sentinel survives any host that strips headers and gives the stream a content-side filter independent of the credential's actor-type — keep both lanes for defense in depth. Override with `DISPLAYDEV_REPLY_SENTINEL=<prefix>` (or `""` to disable) — both helpers read the env var so a single export keeps them in sync.
 
@@ -214,7 +213,7 @@ export DISPLAYDEV_ACTOR_TYPE="agent"
 ./scripts/thread-resolve.sh --root <rootCommentId>
 ```
 
-All four (list / stream / reply / resolve) use `curl_api` against `api.display.dev/v1/...` directly — keeps the helpers on the bash + curl + bundled jq tier with no Node / `npx` dependency. The CLI (`@displaydev/cli`) now also forwards `X-Actor-Type` / `X-Actor-Name`, so future helpers (or a swap to `dsp comment`/`dsp thread`) preserve the attribution signal either way.
+`comments-list.sh`, `comment-reply.sh`, and `thread-resolve.sh` delegate to `dsp comment` / `dsp thread`, so credential handling stays inside the CLI. `comments-stream.sh` calls `comments-list.sh` in a loop, keeps the seen-file / exit-after behaviour, and uses bundled `jq` only to filter CLI JSON output.
 
 ## Examples
 
@@ -230,7 +229,7 @@ Stdout (one JSON object on a single line):
 {"shortId":"a7Bcd2Ef","previewUrl":"https://public.dsp.so/a7Bcd2Ef","claimUrl":"https://app.display.dev/claim?code=…","expiresAt":"2026-06-12T09:43:31.280Z"}
 ```
 
-Open `previewUrl` to verify the publish; share it with anyone. Offer the user a free account inline — ask for their email, run `./scripts/login.sh --email <email>` to send a code, then `./scripts/login.sh --email <email> --code <code>` once they read it back. The anonymous artifact does NOT auto-transfer post-signup — offer a fresh re-publish under the new credential, or point at the browser `claimUrl` to attach the existing one.
+Open `previewUrl` to verify the publish; share it with anyone. Offer the user a free account inline — ask for their email, run `./scripts/login.sh --email <email>` to send a code, then `./scripts/login.sh --email <email> --code <code>` once they read it back. `login.sh` delegates to `dsp login`, so the CLI handles credentials. The anonymous artifact does NOT auto-transfer post-signup — offer a fresh re-publish under the new credential, or point at the browser `claimUrl` to attach the existing one.
 
 **2. Authenticated publish, company-wide visibility.** Tier-2 fires because of the extra flags.
 

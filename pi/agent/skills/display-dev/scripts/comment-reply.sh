@@ -12,10 +12,6 @@ source "$(dirname "$0")/_common.sh"
 # the sentinel with DISPLAYDEV_REPLY_SENTINEL="<prefix>" (or empty
 # string to disable). When ACTOR_TYPE is unset / "user", no sentinel is
 # added — humans drive the public surface.
-#
-# Requires `jq` for safe JSON body encoding. Hand-rolling JSON-escape in
-# bash for arbitrary 10k-char comment bodies is the kind of correctness
-# trap that's not worth the dependency saving.
 
 ARTIFACT=""; PARENT=""; BODY=""
 while [[ $# -gt 0 ]]; do
@@ -46,14 +42,6 @@ if printf '%s' "$PARENT" | LC_ALL=C grep -qE '[^A-Za-z0-9-]'; then
   echo "comment-reply.sh: --parent contains invalid characters" >&2; exit 1
 fi
 
-require_jq_or_exit
-
-TOKEN=$(resolve_token)
-if [[ -z "$TOKEN" ]]; then
-  echo "comment-reply.sh: not signed in (no DISPLAYDEV_API_KEY env or ~/.displaydev/config.json). Run login.sh." >&2
-  exit 1
-fi
-
 # Prepend the sentinel only on agent-attributed posts that don't already
 # carry it. ${BODY#"$SENTINEL"} == $BODY is the bash idiom for "BODY
 # doesn't start with SENTINEL" — works when SENTINEL is the empty string
@@ -64,20 +52,8 @@ if [[ "${DISPLAYDEV_ACTOR_TYPE:-}" == "agent" && -n "$SENTINEL" && "${BODY#"$SEN
   BODY="${SENTINEL}${BODY}"
 fi
 
-PAYLOAD=$("$JQ" -nc --arg parent "$PARENT" --arg body "$BODY" '{parentId: $parent, body: $body}')
-
-RESPONSE=$(curl_api -X POST "$API_URL/v1/artifacts/$ARTIFACT/comments" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "$PAYLOAD" \
-  -w "\n%{http_code}" || true)
-HTTP_CODE=$(printf '%s' "$RESPONSE" | tail -n 1)
-BODY_RESP=$(printf '%s' "$RESPONSE" | sed '$d')
-
-if [[ "$HTTP_CODE" != "201" ]]; then
-  MSG=$("$JQ" -r '.message // ""' <<<"$BODY_RESP" 2>/dev/null || printf '')
-  echo "comment-reply.sh: API returned $HTTP_CODE${MSG:+: $MSG}" >&2
-  exit 1
-fi
-
-printf '%s\n' "$BODY_RESP"
+require_dsp_or_exit
+exec $DSP_CMD comment --client-source "$CLIENT_SOURCE" add \
+  --artifact "$ARTIFACT" \
+  --parent "$PARENT" \
+  --body "$BODY"
