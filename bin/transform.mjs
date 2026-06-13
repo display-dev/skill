@@ -39,29 +39,38 @@ const EXPECTED_FRONTMATTER_FIELDS = ['name', 'description'];
 
 // Per-mount placeholder values. Keys are the placeholder names (without the
 // `{{ }}` delimiters); values are the literal text substituted into that
-// mount's .md/.html files.
-//
-// Empty for every mount in this commit: the canonical SKILL.md carries no
-// `{{...}}` tokens yet, so every mount is a byte-for-byte copy of canonical
-// — a pure rsync replacement. The Codex-bundle change populates these maps,
-// appends PLACEHOLDER_KEYS, and adds the `codex_skill` mount.
+// mount's .md/.html files. The three generic mounts share one host-neutral
+// set; the Codex plugin's bundled skill copy gets Codex-specific wording.
+const GENERIC_PLACEHOLDERS = {
+  host_generated_phrase: 'publish what the agent just generated',
+  host_artifact_name: 'an artifact',
+  mcp_preference_note:
+    'When an MCP server is available, it may be used for supported publish/share/comment workflows; otherwise use the helpers or CLI.',
+};
+
 const PROVIDER_PLACEHOLDERS = {
-  skills: {},
-  hermes: {},
-  pi: {},
+  skills: GENERIC_PLACEHOLDERS,
+  hermes: GENERIC_PLACEHOLDERS,
+  pi: GENERIC_PLACEHOLDERS,
+  codex_skill: {
+    host_generated_phrase: 'publish what Codex just generated',
+    host_artifact_name: 'a Codex artifact',
+    mcp_preference_note:
+      'In the Codex plugin, the remote display.dev MCP server is bundled. Prefer it for supported publish/share/comment workflows after OAuth succeeds; use helpers or CLI for local files, CI, or when MCP is unavailable.',
+  },
 };
 
 // Source of truth for which `{{...}}` tokens the transformer resolves. Adding
-// a placeholder is one entry here plus one value per provider above. Empty
-// today → substitution is a no-op and mounts are byte-identical to canonical.
-const PLACEHOLDER_KEYS = [];
+// a placeholder is one entry here plus one value per provider above.
+const PLACEHOLDER_KEYS = ['host_generated_phrase', 'host_artifact_name', 'mcp_preference_note'];
 
 // Per-mount config: provider (keys PROVIDER_PLACEHOLDERS), path (output root
 // relative to outputRoot), displayName (CLI output label).
 const MOUNTS = [
-  { provider: 'skills', path: 'skills/display-dev',             displayName: 'npm skills' },
-  { provider: 'hermes', path: 'hermes/productivity/display.dev', displayName: 'Hermes' },
-  { provider: 'pi',     path: 'pi/agent/skills/display-dev',     displayName: 'Pi' },
+  { provider: 'skills',      path: 'skills/display-dev',                   displayName: 'npm skills' },
+  { provider: 'hermes',      path: 'hermes/productivity/display.dev',      displayName: 'Hermes' },
+  { provider: 'pi',          path: 'pi/agent/skills/display-dev',          displayName: 'Pi' },
+  { provider: 'codex_skill', path: 'codex/display-dev/skills/display-dev', displayName: 'Codex plugin skill' },
 ];
 
 // Substitution is scoped to authoring formats. Everything else (scripts, the

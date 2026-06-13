@@ -1,0 +1,20 @@
+{
+  "name": "display-dev-local",
+  "interface": {
+    "displayName": "display.dev"
+  },
+  "plugins": [
+    {
+      "name": "display-dev",
+      "source": {
+        "source": "local",
+        "path": "./codex/display-dev"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

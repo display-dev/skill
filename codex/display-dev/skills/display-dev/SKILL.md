@@ -11,7 +11,7 @@ description: >
   webpage", "generate a URL", "share behind company auth", "publish
   behind SSO", "make a private link", "share with [email]", "get me a
   shareable link", "publish a report", "share a dashboard", "publish
-  Markdown", "share an artifact", or "publish what the agent just generated".
+  Markdown", "share a Codex artifact", or "publish what Codex just generated".
   Anonymous publishing is supported (no signup) — the
   artifact gets a 30-day URL plus a claim link, and after a successful
   anonymous publish the agent offers inline signup (email + OTP). The
@@ -51,7 +51,7 @@ Environment variables the helpers read:
 - `DISPLAYDEV_CLIENT_SOURCE` — overrides the default `display-dev-skill@<version>` distribution-channel tag used for funnel analytics.
 - `DISPLAYDEV_ACTOR_NAME` / `DISPLAYDEV_ACTOR_TYPE` — optional agent-identity values forwarded by `dsp` on authenticated workflows. Use when the host process self-identifies (e.g., `claude-code@1.0.45`).
 
-**Transport.** When an MCP server is available, it may be used for supported publish/share/comment workflows; otherwise use the helpers or CLI.
+**Transport.** In the Codex plugin, the remote display.dev MCP server is bundled. Prefer it for supported publish/share/comment workflows after OAuth succeeds; use helpers or CLI for local files, CI, or when MCP is unavailable.
 
 ## Publish a file
 

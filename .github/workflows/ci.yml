@@ -12,16 +12,63 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Make scripts executable
-        run: chmod +x bin/sync-mounts.sh display-dev/scripts/*.sh
+      - name: Skill scripts stay executable (canonical + generated mounts)
+        # Proves the committed install payload is runnable. Canonical scripts
+        # are checked as committed (not chmod'd first), so a script committed
+        # non-executable fails CI instead of being silently repaired. A mount
+        # script that landed non-executable would silently break
+        # `./scripts/publish.sh` for installed users.
+        run: |
+          status=0
+          for dir in display-dev skills/display-dev hermes/productivity/display.dev pi/agent/skills/display-dev codex/display-dev/skills/display-dev; do
+            for script in "$dir"/scripts/*.sh; do
+              if [ ! -x "$script" ]; then
+                echo "not executable: $script" >&2
+                status=1
+              fi
+            done
+          done
+          exit $status
 
-      - name: Mounts byte-identical (canonical → mirrors)
+      - name: Make wrapper executable
+        run: chmod +x bin/sync-mounts.sh
+
+      - name: Generated mounts match canonical (placeholders resolved)
+        # Covers all four generated skill mounts (skills / hermes / pi /
+        # codex), plus the no-unresolved-{{...}} and frontmatter-field-set
+        # assertions the transformer runs in --check mode.
         run: bin/sync-mounts.sh --check
 
-      - name: Plugin manifests parse as JSON
+      - name: JSON manifests and config parse
         run: |
           jq empty .cursor-plugin/plugin.json
-          jq empty .codex-plugin/plugin.json
+          jq empty .claude-plugin/plugin.json
+          jq empty .claude-plugin/marketplace.json
+          jq empty codex/display-dev/.codex-plugin/plugin.json
+          jq empty codex/display-dev/.mcp.json
+          jq empty .agents/plugins/marketplace.json
+
+      - name: Version equality across release metadata
+        # Single source of truth is SKILL_VERSION in
+        # display-dev/scripts/_common.sh. Every manifest version field and
+        # the Codex .mcp.json X-Client-Source suffix must match it, so a
+        # release bump can't half-land across the hand-authored files.
+        run: |
+          want="$(grep SKILL_VERSION_OVERRIDE display-dev/scripts/_common.sh | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
+          echo "SKILL_VERSION = $want"
+          status=0
+          check() {
+            if [ "$1" != "$want" ]; then
+              echo "version mismatch: $2 = '$1' (want $want)" >&2
+              status=1
+            fi
+          }
+          check "$(jq -r .version .cursor-plugin/plugin.json)" .cursor-plugin/plugin.json
+          check "$(jq -r .version .claude-plugin/plugin.json)" .claude-plugin/plugin.json
+          check "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)" .claude-plugin/marketplace.json
+          check "$(jq -r .version codex/display-dev/.codex-plugin/plugin.json)" codex/display-dev/.codex-plugin/plugin.json
+          check "$(jq -r '.mcpServers["display-dev"].http_headers["X-Client-Source"]' codex/display-dev/.mcp.json | sed 's/.*@//')" codex/display-dev/.mcp.json
+          exit $status
 
       - name: Bash syntax check
         run: |

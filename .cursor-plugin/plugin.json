@@ -1,7 +1,7 @@
 {
   "name": "display.dev",
   "description": "Publish HTML or Markdown files as shareable URLs behind company authentication, public sharing, or a private link. Share with your organization (Google Workspace or Microsoft 365 SSO), share with specific email addresses, or make a public link.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": { "name": "display.dev", "url": "https://display.dev" },
   "homepage": "https://display.dev",
   "repository": "https://github.com/display-dev/skill",

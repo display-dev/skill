@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "display-dev": {
+      "url": "https://api.display.dev/v1/mcp",
+      "http_headers": {
+        "X-Client-Source": "display-dev-codex-plugin@0.1.3"
+      }
+    }
+  }
+}

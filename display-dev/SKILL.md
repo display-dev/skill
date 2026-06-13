@@ -11,8 +11,8 @@ description: >
   webpage", "generate a URL", "share behind company auth", "publish
   behind SSO", "make a private link", "share with [email]", "get me a
   shareable link", "publish a report", "share a dashboard", "publish
-  Markdown", "share a Claude artifact", or "publish what Claude Code
-  just generated". Anonymous publishing is supported (no signup) — the
+  Markdown", "share {{host_artifact_name}}", or "{{host_generated_phrase}}".
+  Anonymous publishing is supported (no signup) — the
   artifact gets a 30-day URL plus a claim link, and after a successful
   anonymous publish the agent offers inline signup (email + OTP). The
   anonymous artifact doesn't auto-transfer; post-signup the agent
@@ -50,6 +50,8 @@ Environment variables the helpers read:
 - `DISPLAYDEV_API_KEY` — overrides the config file's `token`. Highest precedence.
 - `DISPLAYDEV_CLIENT_SOURCE` — overrides the default `display-dev-skill@<version>` distribution-channel tag used for funnel analytics.
 - `DISPLAYDEV_ACTOR_NAME` / `DISPLAYDEV_ACTOR_TYPE` — optional agent-identity values forwarded by `dsp` on authenticated workflows. Use when the host process self-identifies (e.g., `claude-code@1.0.45`).
+
+**Transport.** {{mcp_preference_note}}
 
 ## Publish a file
 
