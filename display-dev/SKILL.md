@@ -4,7 +4,7 @@ description: >
   Publishes HTML or Markdown files as shareable URLs on display.dev —
   behind company authentication, with specific email addresses, or as
   public links. Supports sharing with the user's organization (Google
-  Workspace or Microsoft 365 SSO), with named email addresses, or as a
+  Workspace or Microsoft 365 SSO), with specific email addresses, or as a
   public link anyone can open. Loads when the user asks to "publish
   this", "share this", "share this with the org", "share internally",
   "post this online", "make a website", "put this online", "create a

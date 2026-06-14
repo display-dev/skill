@@ -11,7 +11,7 @@
         "source": "github",
         "repo": "display-dev/skill"
       },
-      "description": "Publish HTML or Markdown files as shareable display.dev URLs behind company auth, company SSO, named-email access, or a 30-day anonymous claim link.",
+      "description": "Publish HTML or Markdown files as shareable display.dev URLs behind company auth, company SSO, specific email addresses, or a 30-day anonymous claim link.",
       "version": "0.1.3",
       "author": {
         "name": "display.dev",
