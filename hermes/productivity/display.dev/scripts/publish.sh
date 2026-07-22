@@ -9,6 +9,10 @@ source "$(dirname "$0")/_common.sh"
 # --visibility, --share-with, --name, --id, --theme, --show-branding, etc.
 
 USE_HOTPATH=1
+if [[ $# -eq 1 && "$1" == "-" ]]; then
+  echo "publish.sh: file path '-' is not allowed" >&2
+  exit 1
+fi
 if [[ $# -ne 1 ]] || [[ "$1" == -* ]]; then USE_HOTPATH=0; fi
 if [[ -n "${DISPLAYDEV_API_KEY:-}" ]] || [[ -f "$HOME/.displaydev/config.json" ]]; then
   USE_HOTPATH=0
@@ -16,7 +20,7 @@ fi
 
 if [[ $USE_HOTPATH -eq 0 ]]; then
   require_dsp_or_exit
-  exec $DSP_CMD publish --client-source "$CLIENT_SOURCE" "$@"
+  exec "$DSP_BIN" publish --client-source "$CLIENT_SOURCE" "$@"
 fi
 
 FILE="$1"
@@ -28,9 +32,10 @@ fi
 # Reject path characters that double as curl `-F` metadata separators:
 #   ;  → starts `;type=…` / `;filename=…` overrides
 #   ,  → multi-file path separator in `-F file=@a,b,c`
+#   "  → changes curl's form-string parsing
 # Plus any control char — newlines / CRs would break the multipart form.
-if printf '%s' "$FILE" | LC_ALL=C grep -qE '[;,]|[[:cntrl:]]'; then
-  echo "publish.sh: file path contains invalid characters (; , or control chars)" >&2
+if [[ "$FILE" == *'"'* || "$FILE" == *';'* || "$FILE" == *','* || "$FILE" =~ [[:cntrl:]] ]]; then
+  echo "publish.sh: file path contains invalid characters (\" ; , or control chars)" >&2
   exit 1
 fi
 

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${FAKE_NPX_MARKER:?FAKE_NPX_MARKER is required}"
+printf 'unexpected npx execution\n' > "$FAKE_NPX_MARKER"
+exit 97

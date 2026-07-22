@@ -68,6 +68,7 @@ jobs:
           check "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)" .claude-plugin/marketplace.json
           check "$(jq -r .version codex/display-dev/.codex-plugin/plugin.json)" codex/display-dev/.codex-plugin/plugin.json
           check "$(jq -r '.mcpServers["display-dev"].http_headers["X-Client-Source"]' codex/display-dev/.mcp.json | sed 's/.*@//')" codex/display-dev/.mcp.json
+          check "$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' display-dev/SKILL.md | sort -u | sed 's/.*@//')" display-dev/SKILL.md
           exit $status
 
       - name: Bash syntax check
@@ -75,6 +76,10 @@ jobs:
           for script in display-dev/scripts/*.sh; do
             bash -n "$script"
           done
+          bash -n tests/run.sh
+
+      - name: Helper trust-boundary tests
+        run: bash tests/run.sh
 
       - name: ShellCheck
         # Pinned to v2.0.0 by full commit SHA — public-repo supply-chain
@@ -82,6 +87,12 @@ jobs:
         uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
         with:
           scandir: ./display-dev/scripts
+          severity: warning
+
+      - name: ShellCheck tests
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
+        with:
+          scandir: ./tests
           severity: warning
 
       # Deliberately no wire-level smoke against a spawned API. The

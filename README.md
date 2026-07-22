@@ -1,6 +1,6 @@
 # display.dev skill
 
-Public agent skill that teaches your AI assistant how to publish, share, and sign in to [display.dev](https://display.dev) from natural-language prompts.
+Public agent skill that teaches your AI assistant how to publish, share, create an account, sign in, claim an anonymous publish, and iterate from comments on [display.dev](https://display.dev).
 
 ## Install
 
@@ -38,7 +38,9 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "share with [email]"
 - "publish a report" / "share a dashboard" / "publish Markdown"
 
-You can publish without a `display.dev` account or any setup — you get a 30-day claim URL back. Sign in (or sign up via email OTP) to convert it to a permanent link.
+You can publish without a `display.dev` account or any setup — you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
+
+Signing in authenticates the CLI; it does not silently transfer an earlier anonymous publish. Open that publish's retained browser claim URL to preserve its existing artifact URL and choose or create the destination organization.
 
 ## Codex local development (maintainers)
 
@@ -51,15 +53,17 @@ codex plugin marketplace add ./path/to/display-dev-skill
 
 Restart Codex, then install **display.dev** from the local marketplace via `/plugins`.
 
-## MCP transport — stdio fallback
+## MCP transport — installed stdio fallback
 
 The Codex plugin bundles the remote MCP server by default. For CI, local files, or power-user setups you can run the stdio MCP server instead, in your Codex `config.toml`:
 
 ```toml
 [mcp_servers.display-dev]
-command = "npx"
-args = ["-y", "@displaydev/cli", "mcp"]
+command = "dsp"
+args = ["mcp"]
 ```
+
+Install the official CLI only with user approval. Skill helpers never download a runtime CLI automatically.
 
 ## Documentation
 

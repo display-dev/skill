@@ -59,4 +59,4 @@ if [[ -n "$STATUS" ]]; then
 fi
 
 require_dsp_or_exit
-exec $DSP_CMD comment --client-source "$CLIENT_SOURCE" list "${ARGS[@]}"
+exec "$DSP_BIN" comment --client-source "$CLIENT_SOURCE" list "${ARGS[@]}"

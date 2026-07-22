@@ -53,7 +53,7 @@ if [[ "${DISPLAYDEV_ACTOR_TYPE:-}" == "agent" && -n "$SENTINEL" && "${BODY#"$SEN
 fi
 
 require_dsp_or_exit
-exec $DSP_CMD comment --client-source "$CLIENT_SOURCE" add \
+exec "$DSP_BIN" comment --client-source "$CLIENT_SOURCE" add \
   --artifact "$ARTIFACT" \
   --parent "$PARENT" \
   --body "$BODY"

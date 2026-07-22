@@ -1,6 +1,6 @@
 {
   "name": "display-dev",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Publish HTML or Markdown files behind company authentication, public sharing, or a private link.",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",

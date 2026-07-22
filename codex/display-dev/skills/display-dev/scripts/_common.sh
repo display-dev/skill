@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sourced by the other scripts. Resolves jq, dsp invocation, attribution,
+# Sourced by the other scripts. Resolves jq, the installed dsp executable, attribution,
 # and the helpers used by the Tier-1 bash hot path.
 
 set -euo pipefail
@@ -33,23 +33,17 @@ if [[ -z "$JQ" || ! -x "$JQ" ]]; then
   JQ="$(command -v jq 2>/dev/null || true)"
 fi
 
-DSP_CMD=${DSP_CMD:-}
-if [[ -z "$DSP_CMD" ]]; then
-  if command -v dsp >/dev/null 2>&1; then
-    DSP_CMD="dsp"
-  elif command -v npx >/dev/null 2>&1; then
-    DSP_CMD="npx -y @displaydev/cli"
-  else
-    DSP_CMD=""  # neither available — Tier-2 wrappers call require_dsp_or_exit
-  fi
-fi
+# Resolve only a real executable on PATH. `type -P` ignores aliases and shell
+# functions, and assigning the result here deliberately ignores any inherited
+# DSP_BIN value. Authenticated helpers never download or construct a command.
+DSP_BIN="$(type -P dsp 2>/dev/null || true)"
 
 # Skill version. Bump in lockstep with the git tag on every release —
 # this value flows into `CLIENT_SOURCE` below as
 # `display-dev-skill@<version>` and is read by display.dev's analytics
 # to attribute publish events to a specific skill release. Set
 # `SKILL_VERSION_OVERRIDE` to test attribution locally without retagging.
-SKILL_VERSION="${SKILL_VERSION_OVERRIDE:-0.1.3}"
+SKILL_VERSION="${SKILL_VERSION_OVERRIDE:-0.2.0}"
 
 # Attribution: env var > skill default. Same value is sent as the CLI's
 # `--client-source` flag (Tier 2) or the curl `X-Client-Source` header
@@ -57,12 +51,12 @@ SKILL_VERSION="${SKILL_VERSION_OVERRIDE:-0.1.3}"
 # paths.
 CLIENT_SOURCE="${DISPLAYDEV_CLIENT_SOURCE:-display-dev-skill@${SKILL_VERSION}}"
 
-# Tier-2 helper: print install hint and exit if neither dsp nor npx exists.
+# Tier-2 helper: stop unless an installed dsp executable was found.
 require_dsp_or_exit() {
-  if [[ -z "$DSP_CMD" ]]; then
-    echo "This command needs the display.dev CLI. Install with:" >&2
-    echo "  npm install -g @displaydev/cli" >&2
-    echo "Or see https://display.dev/docs/skill for MCP and other options." >&2
+  if [[ -z "$DSP_BIN" ]]; then
+    echo "This command needs an installed display.dev CLI (dsp)." >&2
+    echo "Ask the user to approve installing the official CLI, or use an authorized bundled display.dev remote MCP." >&2
+    echo "See https://display.dev/docs/skill for installation and MCP options." >&2
     exit 1
   fi
 }

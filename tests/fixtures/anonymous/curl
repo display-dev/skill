@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${FAKE_CURL_ARGS:?FAKE_CURL_ARGS is required}"
+printf '%s\n' "$@" > "$FAKE_CURL_ARGS"
+printf '%s\n' \
+  '{"shortId":"abc12345","previewUrl":"https://public.dsp.so/abc12345","claimUrl":"https://app.display.dev/claim?code=redacted","expiresAt":"2026-08-21T00:00:00.000Z"}' \
+  '201'

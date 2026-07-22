@@ -25,4 +25,4 @@ if printf '%s' "$ROOT" | LC_ALL=C grep -qE '[^A-Za-z0-9-]'; then
 fi
 
 require_dsp_or_exit
-exec $DSP_CMD thread --client-source "$CLIENT_SOURCE" resolve "$ROOT"
+exec "$DSP_BIN" thread --client-source "$CLIENT_SOURCE" resolve "$ROOT"

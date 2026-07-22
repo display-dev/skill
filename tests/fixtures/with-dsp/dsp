@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${FAKE_DSP_ARGS:?FAKE_DSP_ARGS is required}"
+: "${FAKE_DSP_API_URL:?FAKE_DSP_API_URL is required}"
+
+printf '%s\0' "$@" > "$FAKE_DSP_ARGS"
+printf '%s' "${DISPLAYDEV_API_URL-<unset>}" > "$FAKE_DSP_API_URL"
