@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -80,6 +83,9 @@ jobs:
 
       - name: Helper trust-boundary tests
         run: bash tests/run.sh
+
+      - name: Candidate archive contract
+        run: node --test tests/archive-candidate.test.mjs
 
       - name: ShellCheck
         # Pinned to v2.0.0 by full commit SHA — public-repo supply-chain
