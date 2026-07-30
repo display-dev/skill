@@ -194,6 +194,24 @@ grep -F '[[ "$file" == *'"'"'"'"'"'* || "$file" == *'"'"';'"'"'* || "$file" == *
 grep -F 'curl -sS -X POST' "$ROOT/display-dev/SKILL.md" >/dev/null \
   || fail 'standalone anonymous publishing still requires packaged scripts'
 
+REQUIRED_ARTIFACT_WORKFLOW=(
+  'dsp list --client-source'
+  'dsp search --client-source'
+  'dsp get-metadata --client-source'
+  'dsp read --client-source'
+  'dsp edit --client-source'
+  'edit { short_id, base_version, old_text, new_text }'
+  'Remote MCP intentionally has'
+)
+for instruction in "${REQUIRED_ARTIFACT_WORKFLOW[@]}"; do
+  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+    || fail "standalone skill omits artifact workflow instruction: $instruction"
+done
+if grep -F 'fetch/export, reconcile' "$ROOT/display-dev/SKILL.md" >/dev/null; then
+  fail 'standalone skill still teaches the old export-first recovery workflow'
+fi
+pass 'artifact read, search, metadata, and exact-edit workflow'
+
 SKILL_SOURCE_VERSIONS="$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/display-dev/SKILL.md" | sort -u)"
 [[ "$SKILL_SOURCE_VERSIONS" == "display-dev-skill@$WANT_VERSION" ]] \
   || fail "standalone skill attribution version is '$SKILL_SOURCE_VERSIONS' (want display-dev-skill@$WANT_VERSION)"

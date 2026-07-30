@@ -1,29 +1,29 @@
 # display.dev skill
 
-Public agent skill that teaches your AI assistant how to publish, share, create an account, sign in, claim an anonymous publish, and iterate from comments on [display.dev](https://display.dev).
+Public agent skill that teaches your AI assistant how to publish, browse, search, read, edit, share, create an account, sign in, claim an anonymous publish, and iterate from comments on [display.dev](https://display.dev).
 
 ## Install
 
-### Any agent — skill only
+### Any agent – skill only
 
 ```sh
 npx skills add display-dev/skill --skill display-dev
 ```
 
-### Claude Code — plugin
+### Claude Code – plugin
 
 ```sh
 /plugin marketplace add display-dev/skill
 /plugin install display-dev@display-dev
 ```
 
-### Codex — plugin (skill + bundled MCP server)
+### Codex – plugin (skill + bundled MCP server)
 
 ```sh
 codex plugin marketplace add display-dev/skill
 ```
 
-Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so the publish / share / comment tools are available after sign-in — no separate MCP setup.
+Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
 
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
@@ -37,10 +37,19 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "make a private link"
 - "share with [email]"
 - "publish a report" / "share a dashboard" / "publish Markdown"
+- "list my artifacts" / "find the quarterly report"
+- "read this artifact" / "search inside this artifact"
+- "change this passage in the published report"
 
-You can publish without a `display.dev` account or any setup — you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
+You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
 
 Signing in authenticates the CLI; it does not silently transfer an earlier anonymous publish. Open that publish's retained browser claim URL to preserve its existing artifact URL and choose or create the destination organization.
+
+For existing artifacts, the skill uses `get_metadata`, scoped `search`, and
+bounded `read` to establish the current source context. One exact replacement
+uses `edit`, which publishes a new version at the same URL with optimistic
+concurrency. Complete-source export remains available only through the local
+CLI for workflows that genuinely need the whole file.
 
 ## Codex local development (maintainers)
 
@@ -53,7 +62,7 @@ codex plugin marketplace add ./path/to/display-dev-skill
 
 Restart Codex, then install **display.dev** from the local marketplace via `/plugins`.
 
-## MCP transport — installed stdio fallback
+## MCP transport – installed stdio fallback
 
 The Codex plugin bundles the remote MCP server by default. For CI, local files, or power-user setups you can run the stdio MCP server instead, in your Codex `config.toml`:
 
@@ -71,4 +80,4 @@ Full docs at [display.dev/docs/skill](https://display.dev/docs/skill).
 
 ## License
 
-MIT — see [LICENSE](./LICENSE). Bundles [jq 1.7.1](https://github.com/jqlang/jq) (MIT, © 2012 Stephen Dolan); full text in [`display-dev/bin/jq.LICENSE`](display-dev/bin/jq.LICENSE).
+MIT – see [LICENSE](./LICENSE). Bundles [jq 1.7.1](https://github.com/jqlang/jq) (MIT, © 2012 Stephen Dolan); full text in [`display-dev/bin/jq.LICENSE`](display-dev/bin/jq.LICENSE).
