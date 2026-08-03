@@ -1,6 +1,6 @@
 # display.dev skill
 
-Public agent skill that teaches your AI assistant how to publish, browse, search, read, edit, share, create an account, sign in, claim an anonymous publish, and iterate from comments on [display.dev](https://display.dev).
+Public agent skill that teaches your AI assistant how to publish, copy, browse, search, read, edit, share, create an account, sign in, claim an anonymous publish, and iterate from comments on [display.dev](https://display.dev).
 
 ## Install
 
@@ -23,7 +23,7 @@ npx skills add display-dev/skill --skill display-dev
 codex plugin marketplace add display-dev/skill
 ```
 
-Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
+Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
 
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
@@ -40,6 +40,7 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "list my artifacts" / "find the quarterly report"
 - "read this artifact" / "search inside this artifact"
 - "change this passage in the published report"
+- "make a copy of this artifact" / "duplicate version 3"
 - "add a company email domain"
 - "transfer an email domain"
 
@@ -57,6 +58,10 @@ The skill also covers email-domain list, add, DNS verification, transfer
 status, and cancellation through MCP or `dsp email-domains`. A current target
 Owner completes an eligible transfer in **Settings → Email Domains**; agents
 and the CLI never perform the irreversible confirmation.
+
+For an existing artifact, the skill prefers MCP `make_copy` or `dsp make-copy` to create
+a new artifact from a retained version without carrying over discussions or
+invited people.
 
 ## Codex local development (maintainers)
 

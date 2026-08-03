@@ -202,6 +202,12 @@ REQUIRED_ARTIFACT_WORKFLOW=(
   'dsp edit --client-source'
   'edit { short_id, base_version, old_text, new_text }'
   'Remote MCP intentionally has'
+  'make_copy'
+  'dsp make-copy --client-source'
+  'Copy requires an authenticated MCP connection or signed-in CLI.'
+  'public MCP and anonymous local mode expose only `publish`.'
+  'do not work around the boundary by exporting and republishing the source.'
+  'Do not export and republish when `make_copy` is available.'
 )
 for instruction in "${REQUIRED_ARTIFACT_WORKFLOW[@]}"; do
   grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
@@ -210,7 +216,7 @@ done
 if grep -F 'fetch/export, reconcile' "$ROOT/display-dev/SKILL.md" >/dev/null; then
   fail 'standalone skill still teaches the old export-first recovery workflow'
 fi
-pass 'artifact read, search, metadata, and exact-edit workflow'
+pass 'artifact read, search, metadata, exact-edit, and copy workflow'
 
 SKILL_SOURCE_VERSIONS="$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/display-dev/SKILL.md" | sort -u)"
 [[ "$SKILL_SOURCE_VERSIONS" == "display-dev-skill@$WANT_VERSION" ]] \
