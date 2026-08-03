@@ -40,6 +40,8 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "list my artifacts" / "find the quarterly report"
 - "read this artifact" / "search inside this artifact"
 - "change this passage in the published report"
+- "add a company email domain"
+- "transfer an email domain"
 
 You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
 
@@ -50,6 +52,11 @@ bounded `read` to establish the current source context. One exact replacement
 uses `edit`, which publishes a new version at the same URL with optimistic
 concurrency. Complete-source export remains available only through the local
 CLI for workflows that genuinely need the whole file.
+
+The skill also covers email-domain list, add, DNS verification, transfer
+status, and cancellation through MCP or `dsp email-domains`. A current target
+Owner completes an eligible transfer in **Settings → Email Domains**; agents
+and the CLI never perform the irreversible confirmation.
 
 ## Codex local development (maintainers)
 
