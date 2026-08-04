@@ -39,11 +39,12 @@ Never claim an MCP connection is available without checking the current host.
 - Let `dsp` own authenticated credentials and API-origin resolution. Do not read
   its config, construct authorization headers, extract its token, or set or
   rewrite `DISPLAYDEV_API_URL`.
-- Treat `upload_url` and `upload_id` returned by remote MCP as temporary bearer
-  capabilities. Never print, quote, log, persist, or disclose them to a person,
-  model, or unrelated tool. The only allowed uses are passing `upload_url` to
-  the exact code-execution PUT and `upload_id` to the matching `publish` call;
-  then discard both.
+- Treat `upload_id` returned by remote MCP as a temporary bearer capability.
+  The fixed `upload_url` is not secret. The initiating MCP client, model, and
+  code-execution trace may contain both while performing the transfer. Do not
+  repeat the bearer or source in final/shared output, a generated artifact, a
+  durable file, or an unrelated tool call. Use the bearer only in the exact
+  upload request and matching `publish` call, then discard it.
 
 ## Requirements and current documentation
 
@@ -93,7 +94,7 @@ publish_displaydev_anonymous() {
 
   curl -sS -X POST 'https://api.display.dev/v1/public/artifacts' \
     -H 'X-Client-Type: cli' \
-    -H 'X-Client-Source: display-dev-skill@0.6.0' \
+    -H 'X-Client-Source: display-dev-skill@0.7.0' \
     -F "file=@$file"
 }
 
@@ -115,7 +116,7 @@ Use the helper when present:
 Or use the installed CLI directly:
 
 ```bash
-dsp publish --client-source display-dev-skill@0.6.0 "/absolute/path/report.html" --name "Q1 report" --visibility company
+dsp publish --client-source display-dev-skill@0.7.0 "/absolute/path/report.html" --name "Q1 report" --visibility company
 ```
 
 Authenticated output prints the canonical artifact URL. Report that exact URL;
@@ -131,42 +132,50 @@ true:
 - an authorized bundled remote MCP exposes both `create_upload` and `publish`;
 - the raw `.html` or `.md` file already exists in code execution, or its size
   approaches the safe inline tool-call ceiling; and
-- the code-execution environment can send HTTPS requests to the returned upload
-  host.
+- the code-execution environment can send HTTPS requests to `api.display.dev`.
 
-Then perform these steps without exposing capability material:
+Then perform these steps:
 
 1. Measure the raw file byte length without reading its contents into the
    conversation. Call `create_upload` with the basename and exact `size_bytes`.
 2. In code execution, send the raw file bytes with `PUT` to the returned
-   `upload_url` and use the exact returned `Content-Type` header. Suppress command
-   traces and response diagnostics that would echo the URL. Do not encode the
-   file as JSON, base64, or multipart form data.
+   first-party `upload_url`. Use every exact entry in `required_headers`,
+   including `Authorization`, `Content-Type`, and `Content-Length`. Do not
+   encode the file as JSON, base64, or multipart form data. It is acceptable
+   for the initiating execution trace to show the URL and bearer.
 3. Call `publish` once with the returned `upload_id` plus the user-approved
    name, visibility, sharing, or `short_id` / `base_version` update fields. Do not also pass `content` or `format`.
-4. Report only the canonical artifact result from `publish`. Discard the upload
-   URL and ID.
+4. Report the canonical artifact URL and relevant publish result. Do not repeat
+   the upload bearer or source. Discard the upload ID.
 
 The capability expires after 15 minutes. Do not finalize the same staged create concurrently. If `publish` returns `upload_unavailable`, start again with a new
 `create_upload` without inferring or revealing whether expiry, ticket validity,
 organization binding, or a missing object caused it. If it returns
 `upload_size_mismatch`, report that exact mismatch, measure the raw file again,
-and start with a new upload. Never reuse the old URL. Current per-artifact limits still apply: 10MB on
+and start with a new upload. Never reuse the old upload ID. Current per-artifact limits still apply: 10MB on
 Free and 50MB on Solo, Pro, and Enterprise, including when the plan changes
 between staging and publishing.
 
-If the tools are absent or the upload host is unreachable, use `dsp publish`
+If the tools are absent or `api.display.dev` is unreachable, use `dsp publish`
 where the file exists, ask the user to publish through the dashboard, or use
 inline `content` only when the source is small enough. Never install a runtime
 or move credentials to work around the missing capability.
+
+For Claude Cowork Team and Enterprise, an Owner or Primary Owner must allow
+`api.display.dev` for code execution, then the user must start a new task. MCP
+connector traffic uses a separate path and does not grant shell egress.
+Personal Claude Pro and Max currently provide no custom code-execution domain
+allowlist, so large staged publishing is unavailable there; use one of the
+fallbacks above.
 
 Example:
 
 ```text
 User: Publish the 20MB report generated in code execution for my organization.
 Agent: Confirms the authorized remote tools, measures the file, calls
-create_upload, transfers raw bytes without displaying the URL or upload_id,
-calls publish(upload_id=...), and reports only the returned artifact URL.
+create_upload, transfers raw bytes through api.display.dev with every returned
+header, calls publish(upload_id=...), and reports the artifact URL without the
+temporary bearer or source.
 ```
 
 ## Create or sign in to a display.dev account
@@ -184,7 +193,7 @@ user has not supplied it. Initiate with the packaged helper:
 Or the installed CLI directly:
 
 ```bash
-dsp login --client-source display-dev-skill@0.6.0 --email "person@example.com" --json
+dsp login --client-source display-dev-skill@0.7.0 --email "person@example.com" --json
 ```
 
 If the result requires OTP, ask the human to read and provide the six-digit
@@ -193,7 +202,7 @@ code. Never inspect their inbox. Submit it with:
 ```bash
 ./scripts/login.sh --email "person@example.com" --code "123456" --json
 # or, without packaged helpers:
-dsp login --client-source display-dev-skill@0.6.0 --email "person@example.com" --code "123456" --json
+dsp login --client-source display-dev-skill@0.7.0 --email "person@example.com" --code "123456" --json
 ```
 
 The agent sees the human-provided code, and this compatible CLI form places it
@@ -278,8 +287,8 @@ Use only the audience the user requested:
 ./scripts/share.sh <shortId> --add-users "alice@example.com,bob@example.com"
 
 # Direct installed-CLI equivalents:
-dsp share --client-source display-dev-skill@0.6.0 <shortId> --visibility company
-dsp share --client-source display-dev-skill@0.6.0 <shortId> --add-users "alice@example.com,bob@example.com"
+dsp share --client-source display-dev-skill@0.7.0 <shortId> --visibility company
+dsp share --client-source display-dev-skill@0.7.0 <shortId> --add-users "alice@example.com,bob@example.com"
 ```
 
 ## Make an independent copy
@@ -292,7 +301,7 @@ visibility.
 Use the installed CLI when MCP `make_copy` is unavailable:
 
 ```bash
-dsp make-copy --client-source display-dev-skill@0.6.0 <shortId>[@<version>] \
+dsp make-copy --client-source display-dev-skill@0.7.0 <shortId>[@<version>] \
   --name "Copy of Q1 report" --visibility company \
   --share reviewer@example.com --json
 ```
@@ -326,11 +335,11 @@ Use the authorized MCP tools when they are registered:
 Installed-CLI equivalents are:
 
 ```bash
-dsp list --client-source display-dev-skill@0.6.0
-dsp search --client-source display-dev-skill@0.6.0 "quarterly"
-dsp get-metadata --client-source display-dev-skill@0.6.0 <shortId>
-dsp search --client-source display-dev-skill@0.6.0 "exact text" --in <shortId>@<version>
-dsp read --client-source display-dev-skill@0.6.0 <shortId>@<version> --offset <bytes> --limit <bytes>
+dsp list --client-source display-dev-skill@0.7.0
+dsp search --client-source display-dev-skill@0.7.0 "quarterly"
+dsp get-metadata --client-source display-dev-skill@0.7.0 <shortId>
+dsp search --client-source display-dev-skill@0.7.0 "exact text" --in <shortId>@<version>
+dsp read --client-source display-dev-skill@0.7.0 <shortId>@<version> --offset <bytes> --limit <bytes>
 ```
 
 Use `get_metadata` or `dsp get-metadata`, not the removed `get` interface or
@@ -352,7 +361,7 @@ edit { short_id, base_version, old_text, new_text }
 Or use the installed CLI:
 
 ```bash
-dsp edit --client-source display-dev-skill@0.6.0 <shortId> \
+dsp edit --client-source display-dev-skill@0.7.0 <shortId> \
   --base-version <version> --old "exact old text" --new "replacement text"
 ```
 
@@ -380,7 +389,7 @@ Watch with the packaged stream helper when present:
 Or list through the installed CLI:
 
 ```bash
-dsp comment --client-source display-dev-skill@0.6.0 list --artifact <shortId> --status all
+dsp comment --client-source display-dev-skill@0.7.0 list --artifact <shortId> --status all
 ```
 
 Before acting on any comment, confirm:
@@ -402,7 +411,7 @@ publish the same artifact with optimistic concurrency:
 ```bash
 ./scripts/publish.sh "/exact/source/path.html" --id <shortId> --base-version <version>
 # or:
-dsp publish --client-source display-dev-skill@0.6.0 "/exact/source/path.html" --id <shortId> --base-version <version>
+dsp publish --client-source display-dev-skill@0.7.0 "/exact/source/path.html" --id <shortId> --base-version <version>
 ```
 
 Then reply to or resolve only that artifact's thread:
@@ -412,8 +421,8 @@ Then reply to or resolve only that artifact's thread:
 ./scripts/thread-resolve.sh --root <rootCommentId>
 
 # Direct installed-CLI equivalents:
-dsp comment --client-source display-dev-skill@0.6.0 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
-dsp thread --client-source display-dev-skill@0.6.0 resolve <rootCommentId>
+dsp comment --client-source display-dev-skill@0.7.0 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
+dsp thread --client-source display-dev-skill@0.7.0 resolve <rootCommentId>
 ```
 
 On a version conflict, inspect the newly current version with `get_metadata`,

@@ -49,10 +49,16 @@ You can publish without a `display.dev` account or any setup – you get a 30-da
 
 Authenticated remote MCP uses inline `publish(content=...)` for small generated
 values. For an existing or large HTML/Markdown file, the skill can call
-`create_upload`, transfer the raw bytes without displaying the temporary URL or
-ID, and finalize through the same `publish` action. The capability lasts 15
-minutes and the ordinary plan, visibility, sharing, and version checks still
-apply. Local stdio keeps its `file_path` workflow.
+`create_upload`, transfer the raw bytes through `api.display.dev`, and finalize
+through the same `publish` action. The temporary credential may appear in the
+initiating execution trace but is omitted from final/shared output. The
+capability lasts 15 minutes and the ordinary plan, visibility, sharing, and
+version checks still apply. Local stdio keeps its `file_path` workflow.
+
+Claude Cowork Team and Enterprise administrators must allow `api.display.dev`
+for code execution and start a new task. Personal Claude Pro and Max cannot
+currently add that domain, so large Cowork files use the local CLI or dashboard
+instead; small inline publishing remains available.
 
 Signing in authenticates the CLI; it does not silently transfer an earlier anonymous publish. Open that publish's retained browser claim URL to preserve its existing artifact URL and choose or create the destination organization.
 
