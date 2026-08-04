@@ -208,6 +208,16 @@ REQUIRED_ARTIFACT_WORKFLOW=(
   'public MCP and anonymous local mode expose only `publish`.'
   'do not work around the boundary by exporting and republishing the source.'
   'Do not export and republish when `make_copy` is available.'
+  'create_upload'
+  'Prefer inline `publish(content=...)` for small HTML or Markdown values'
+  'The only allowed uses are passing `upload_url` to'
+  '`upload_size_mismatch`, report that exact mismatch'
+  'Do not also pass `content` or `format`.'
+  'The capability expires after 15 minutes.'
+  'Do not finalize the same staged create concurrently.'
+  '10MB on'
+  '50MB on Solo, Pro, and Enterprise'
+  'use `dsp publish`'
 )
 for instruction in "${REQUIRED_ARTIFACT_WORKFLOW[@]}"; do
   grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \

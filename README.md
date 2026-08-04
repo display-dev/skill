@@ -1,6 +1,6 @@
 # display.dev skill
 
-Public agent skill that teaches your AI assistant how to publish, copy, browse, search, read, edit, share, create an account, sign in, claim an anonymous publish, and iterate from comments on [display.dev](https://display.dev).
+Public agent skill that teaches your AI assistant how to publish small inline values or large generated files, copy, browse, search, read, edit, share, create an account, sign in, claim an anonymous publish, and iterate from comments on [display.dev](https://display.dev).
 
 ## Install
 
@@ -23,7 +23,7 @@ npx skills add display-dev/skill --skill display-dev
 codex plugin marketplace add display-dev/skill
 ```
 
-Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
+Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
 
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
@@ -37,6 +37,7 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "make a private link"
 - "share with [email]"
 - "publish a report" / "share a dashboard" / "publish Markdown"
+- "publish the large HTML file generated in code execution"
 - "list my artifacts" / "find the quarterly report"
 - "read this artifact" / "search inside this artifact"
 - "change this passage in the published report"
@@ -45,6 +46,13 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "transfer an email domain"
 
 You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
+
+Authenticated remote MCP uses inline `publish(content=...)` for small generated
+values. For an existing or large HTML/Markdown file, the skill can call
+`create_upload`, transfer the raw bytes without displaying the temporary URL or
+ID, and finalize through the same `publish` action. The capability lasts 15
+minutes and the ordinary plan, visibility, sharing, and version checks still
+apply. Local stdio keeps its `file_path` workflow.
 
 Signing in authenticates the CLI; it does not silently transfer an earlier anonymous publish. Open that publish's retained browser claim URL to preserve its existing artifact URL and choose or create the destination organization.
 

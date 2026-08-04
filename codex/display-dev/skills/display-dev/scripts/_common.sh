@@ -43,7 +43,7 @@ DSP_BIN="$(type -P dsp 2>/dev/null || true)"
 # `display-dev-skill@<version>` and is read by display.dev's analytics
 # to attribute publish events to a specific skill release. Set
 # `SKILL_VERSION_OVERRIDE` to test attribution locally without retagging.
-SKILL_VERSION="${SKILL_VERSION_OVERRIDE:-0.5.0}"
+SKILL_VERSION="${SKILL_VERSION_OVERRIDE:-0.6.0}"
 
 # Attribution: env var > skill default. Same value is sent as the CLI's
 # `--client-source` flag (Tier 2) or the curl `X-Client-Source` header
