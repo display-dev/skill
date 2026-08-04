@@ -285,7 +285,7 @@ dsp share --client-source display-dev-skill@0.6.0 <shortId> --add-users "alice@e
 ## Make an independent copy
 
 Prefer the authorized MCP `make_copy` tool when it is registered. Pass `short_id`
-and any version, name, or visibility the user specified. Omitted values use the
+and any version, name, visibility, or `share` list the user specified. Omitted values use the
 source's current version, `Copy of <source name>`, and the source's current
 visibility.
 
@@ -293,7 +293,8 @@ Use the installed CLI when MCP `make_copy` is unavailable:
 
 ```bash
 dsp make-copy --client-source display-dev-skill@0.6.0 <shortId>[@<version>] \
-  --name "Copy of Q1 report" --visibility company --json
+  --name "Copy of Q1 report" --visibility company \
+  --share reviewer@example.com --json
 ```
 
 Copy requires an authenticated MCP connection or signed-in CLI. Anonymous
@@ -302,8 +303,9 @@ missing or expired, reconnect MCP or run `dsp login`, then retry the same copy;
 do not work around the boundary by exporting and republishing the source.
 
 The copy is a new artifact at version 1. It keeps the selected source content
-and the source artifact's current Markdown theme, but not discussions or invited
-people. Do not export and republish when `make_copy` is available. If the source
+and the source artifact's current Markdown theme, but not discussions or people
+invited to the source. Invite only the people the user names for the new artifact.
+Do not export and republish when `make_copy` is available. If the source
 version is unclear, use
 `get_metadata` or `dsp get-metadata` before copying. A not-found response can
 also mean the source, selected version, or private-content access is unavailable;

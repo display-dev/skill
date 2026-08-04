@@ -68,8 +68,8 @@ Owner completes an eligible transfer in **Settings → Email Domains**; agents
 and the CLI never perform the irreversible confirmation.
 
 For an existing artifact, the skill prefers MCP `make_copy` or `dsp make-copy` to create
-a new artifact from a retained version without carrying over discussions or
-invited people.
+a new artifact from a retained version. Discussions and people invited to the
+source are not carried over. The user can choose recipients for the new artifact.
 
 ## Codex local development (maintainers)
 
