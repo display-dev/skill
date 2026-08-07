@@ -12,6 +12,7 @@ description: >
   "create a display.dev account", "claim this publish", "add a company email
   domain", "transfer an email domain", "watch comments on this artifact",
   "respond to comments", or "resolve this comment thread".
+  Use whenever a request contains a display.dev artifact URL (`*.dsp.so/*`).
   Anonymous publishing returns a 30-day preview and browser claim URL. Prefer
   authorized bundled remote MCP, then packaged helpers or an installed dsp CLI.
 ---
