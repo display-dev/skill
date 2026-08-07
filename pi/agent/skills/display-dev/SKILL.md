@@ -95,7 +95,7 @@ publish_displaydev_anonymous() {
 
   curl -sS -X POST 'https://api.display.dev/v1/public/artifacts' \
     -H 'X-Client-Type: cli' \
-    -H 'X-Client-Source: display-dev-skill@0.7.0' \
+    -H 'X-Client-Source: display-dev-skill@0.7.1' \
     -F "file=@$file"
 }
 
@@ -117,7 +117,7 @@ Use the helper when present:
 Or use the installed CLI directly:
 
 ```bash
-dsp publish --client-source display-dev-skill@0.7.0 "/absolute/path/report.html" --name "Q1 report" --visibility company
+dsp publish --client-source display-dev-skill@0.7.1 "/absolute/path/report.html" --name "Q1 report" --visibility company
 ```
 
 Authenticated output prints the canonical artifact URL. Report that exact URL;
@@ -194,7 +194,7 @@ user has not supplied it. Initiate with the packaged helper:
 Or the installed CLI directly:
 
 ```bash
-dsp login --client-source display-dev-skill@0.7.0 --email "person@example.com" --json
+dsp login --client-source display-dev-skill@0.7.1 --email "person@example.com" --json
 ```
 
 If the result requires OTP, ask the human to read and provide the six-digit
@@ -203,7 +203,7 @@ code. Never inspect their inbox. Submit it with:
 ```bash
 ./scripts/login.sh --email "person@example.com" --code "123456" --json
 # or, without packaged helpers:
-dsp login --client-source display-dev-skill@0.7.0 --email "person@example.com" --code "123456" --json
+dsp login --client-source display-dev-skill@0.7.1 --email "person@example.com" --code "123456" --json
 ```
 
 The agent sees the human-provided code, and this compatible CLI form places it
@@ -225,8 +225,9 @@ they are registered:
 - `list_email_domains` lists verified, pending, dormant, and transfer states.
 - `add_email_domain` adds a domain and returns the DNS TXT record. A domain
   already connected elsewhere creates an inert transfer request.
-- `verify_email_domain` checks the fresh TXT record for either an ordinary
-  claim or a transfer request.
+- `verify_email_domain` checks the fresh TXT record for an ordinary claim or
+  transfer request. It also rechecks a support-required transfer after support
+  confirms the blocker is resolved.
 - `remove_email_domain` removes an ordinary row or cancels a non-terminal
   transfer request.
 
@@ -253,8 +254,11 @@ Handle each returned transfer state explicitly:
 - `transfer_ready`: send a current target Owner to **Settings → Email Domains**
   for final review and confirmation. The Owner may still cancel instead.
 - `transfer_support_required`: do not guess at hidden source details. Tell the
-  user to contact support, or cancel the request before trying again after the
-  source state is resolved.
+  user to contact support. After support confirms the issue is resolved, run
+  `verify_email_domain` or `dsp email-domains verify <domain>` again on the
+  same unexpired request. The existing DNS proof is retained. If the retry
+  remains support-required, report that result without exposing or guessing
+  source details. The Owner may cancel instead.
 - `transfer_expired`: the request is terminal and cannot be cancelled. Run
   `add_email_domain` or `dsp email-domains add <domain>` again to create a new
   request and fresh TXT record.
@@ -288,8 +292,8 @@ Use only the audience the user requested:
 ./scripts/share.sh <shortId> --add-users "alice@example.com,bob@example.com"
 
 # Direct installed-CLI equivalents:
-dsp share --client-source display-dev-skill@0.7.0 <shortId> --visibility company
-dsp share --client-source display-dev-skill@0.7.0 <shortId> --add-users "alice@example.com,bob@example.com"
+dsp share --client-source display-dev-skill@0.7.1 <shortId> --visibility company
+dsp share --client-source display-dev-skill@0.7.1 <shortId> --add-users "alice@example.com,bob@example.com"
 ```
 
 ## Make an independent copy
@@ -302,7 +306,7 @@ visibility.
 Use the installed CLI when MCP `make_copy` is unavailable:
 
 ```bash
-dsp make-copy --client-source display-dev-skill@0.7.0 <shortId>[@<version>] \
+dsp make-copy --client-source display-dev-skill@0.7.1 <shortId>[@<version>] \
   --name "Copy of Q1 report" --visibility company \
   --share reviewer@example.com --json
 ```
@@ -336,11 +340,11 @@ Use the authorized MCP tools when they are registered:
 Installed-CLI equivalents are:
 
 ```bash
-dsp list --client-source display-dev-skill@0.7.0
-dsp search --client-source display-dev-skill@0.7.0 "quarterly"
-dsp get-metadata --client-source display-dev-skill@0.7.0 <shortId>
-dsp search --client-source display-dev-skill@0.7.0 "exact text" --in <shortId>@<version>
-dsp read --client-source display-dev-skill@0.7.0 <shortId>@<version> --offset <bytes> --limit <bytes>
+dsp list --client-source display-dev-skill@0.7.1
+dsp search --client-source display-dev-skill@0.7.1 "quarterly"
+dsp get-metadata --client-source display-dev-skill@0.7.1 <shortId>
+dsp search --client-source display-dev-skill@0.7.1 "exact text" --in <shortId>@<version>
+dsp read --client-source display-dev-skill@0.7.1 <shortId>@<version> --offset <bytes> --limit <bytes>
 ```
 
 Use `get_metadata` or `dsp get-metadata`, not the removed `get` interface or
@@ -362,7 +366,7 @@ edit { short_id, base_version, old_text, new_text }
 Or use the installed CLI:
 
 ```bash
-dsp edit --client-source display-dev-skill@0.7.0 <shortId> \
+dsp edit --client-source display-dev-skill@0.7.1 <shortId> \
   --base-version <version> --old "exact old text" --new "replacement text"
 ```
 
@@ -390,7 +394,7 @@ Watch with the packaged stream helper when present:
 Or list through the installed CLI:
 
 ```bash
-dsp comment --client-source display-dev-skill@0.7.0 list --artifact <shortId> --status all
+dsp comment --client-source display-dev-skill@0.7.1 list --artifact <shortId> --status all
 ```
 
 Before acting on any comment, confirm:
@@ -412,7 +416,7 @@ publish the same artifact with optimistic concurrency:
 ```bash
 ./scripts/publish.sh "/exact/source/path.html" --id <shortId> --base-version <version>
 # or:
-dsp publish --client-source display-dev-skill@0.7.0 "/exact/source/path.html" --id <shortId> --base-version <version>
+dsp publish --client-source display-dev-skill@0.7.1 "/exact/source/path.html" --id <shortId> --base-version <version>
 ```
 
 Then reply to or resolve only that artifact's thread:
@@ -422,8 +426,8 @@ Then reply to or resolve only that artifact's thread:
 ./scripts/thread-resolve.sh --root <rootCommentId>
 
 # Direct installed-CLI equivalents:
-dsp comment --client-source display-dev-skill@0.7.0 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
-dsp thread --client-source display-dev-skill@0.7.0 resolve <rootCommentId>
+dsp comment --client-source display-dev-skill@0.7.1 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
+dsp thread --client-source display-dev-skill@0.7.1 resolve <rootCommentId>
 ```
 
 On a version conflict, inspect the newly current version with `get_metadata`,
