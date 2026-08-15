@@ -23,7 +23,7 @@ npx skills add display-dev/skill --skill display-dev
 codex plugin marketplace add display-dev/skill
 ```
 
-Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
+Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, `get_referral_overview`, sharing, and comment tools are available after sign-in – no separate MCP setup.
 
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
@@ -44,6 +44,7 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "make a copy of this artifact" / "duplicate version 3"
 - "add a company email domain"
 - "transfer an email domain"
+- "show my referral link" / "show referral rewards"
 
 You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
 
@@ -72,6 +73,12 @@ The skill also covers email-domain list, add, DNS verification, transfer
 status, and cancellation through MCP or `dsp email-domains`. A current target
 Owner completes an eligible transfer in **Settings → Email Domains**; agents
 and the CLI never perform the irreversible confirmation.
+
+For the referral program, the skill uses the read-only
+`get_referral_overview` MCP tool to return the link available to the current
+member or organization connection and to explain earned, available, and used
+organization rewards. It reports missing links without guessing why they are
+unavailable.
 
 For an existing artifact, the skill prefers MCP `make_copy` or `dsp make-copy` to create
 a new artifact from a retained version. Discussions and people invited to the

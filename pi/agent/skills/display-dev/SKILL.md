@@ -10,11 +10,11 @@ description: >
   "read this artifact", "search inside this artifact", "change this passage",
   "make a copy of this artifact", "duplicate version",
   "create a display.dev account", "claim this publish", "add a company email
-  domain", "transfer an email domain", "watch comments on this artifact",
+  domain", "transfer an email domain", "show my referral link", "show referral
+  rewards", "watch comments on this artifact",
   "respond to comments", or "resolve this comment thread".
   Use whenever a request contains a display.dev artifact URL (`*.dsp.so/*`).
-  Anonymous publishing returns a 30-day preview and browser claim URL. Prefer
-  authorized bundled remote MCP, then packaged helpers or an installed dsp CLI.
+  Anonymous publishing returns a 30-day preview and browser claim URL.
 ---
 
 # display.dev
@@ -281,6 +281,43 @@ Agent: add_email_domain returns a fresh TXT record because example.com is
 already connected elsewhere. The user publishes it, then the agent runs
 verify_email_domain. If the result is transfer_ready, the agent sends a target
 Owner to Settings → Email Domains for the final review and confirmation.
+```
+
+## View the referral program
+
+Use the authorized MCP `get_referral_overview` tool when the user asks for a
+referral link or the organization's referral rewards. It is read-only.
+
+Interpret the response exactly:
+
+- `referralUrl` is the current member's personal link for a human connection.
+  For an organization service-account connection, it is the generic
+  organization link.
+- `organizationReferralUrl` is the generic organization link exposed to a
+  human Owner or Admin. It is `null` for ordinary Members and organization
+  service accounts.
+- `referrerRewardsEarned` is the number of rewards the organization has earned
+  by referring new organizations, out of the 12-reward limit.
+- `welcomeRewardEarned` says whether the organization earned the reward for
+  joining through a referral.
+- `proRewardsAvailable` counts rewards waiting for an eligible Pro invoice.
+- `proRewardsUsed` counts rewards already applied to Pro invoices.
+
+If either link is `null`, say that it is not available for the current
+connection. Do not infer a role, plan, membership state, rollout state, or
+specific reason. Do not construct a link from an ID or ask for a standalone
+referral code. If the tool is not registered, direct the user to **Referral
+program** in the display.dev dashboard rather than claiming the overview is
+unavailable.
+
+Example:
+
+```text
+User: Show me the referral link I can share and how many rewards are left.
+Agent: Calls get_referral_overview. It returns the available personal or
+organization link verbatim, reports earned rewards against the 12-reward limit,
+and explains available versus used rewards without guessing why another link
+is null.
 ```
 
 ## Share an artifact
