@@ -56,6 +56,12 @@ initiating execution trace but is omitted from final/shared output. The
 capability lasts 15 minutes and the ordinary plan, visibility, sharing, and
 version checks still apply. Local stdio keeps its `file_path` workflow.
 
+Authenticated publishes are private by default for user-scoped credentials and
+company-visible by default for organization-scoped service keys. The skill
+passes Company explicitly when the user asks to share with their organization,
+and it uses Make a copy as the recovery when a service-created artifact cannot
+become Private.
+
 Claude Cowork Team and Enterprise administrators must allow `api.display.dev`
 for code execution and start a new task. Personal Claude Pro and Max cannot
 currently add that domain, so large Cowork files use the local CLI or dashboard

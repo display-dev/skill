@@ -95,7 +95,7 @@ publish_displaydev_anonymous() {
 
   curl -sS -X POST 'https://api.display.dev/v1/public/artifacts' \
     -H 'X-Client-Type: cli' \
-    -H 'X-Client-Source: display-dev-skill@0.7.1' \
+    -H 'X-Client-Source: display-dev-skill@0.7.2' \
     -F "file=@$file"
 }
 
@@ -108,21 +108,39 @@ once; if they decline, do not repeat the pitch in the same session.
 
 ## Publish with an account
 
+For an ordinary authenticated publish, omit visibility. User-scoped sessions
+and keys then create a Private artifact; organization-scoped service keys
+create a Company artifact. Pass `company` only when the user asks to share with
+their organization, `public` when they ask for public access, or `private` when
+they explicitly want personal/invited-person access. For CI and scheduled work,
+prefer an organization-scoped key; with a user-scoped credential, pass
+`company` explicitly when the result is meant for the organization.
+
 Use the helper when present:
 
 ```bash
+./scripts/publish.sh "/absolute/path/draft.html" --name "Q1 draft"
 ./scripts/publish.sh "/absolute/path/report.html" --name "Q1 report" --visibility company
 ```
 
 Or use the installed CLI directly:
 
 ```bash
-dsp publish --client-source display-dev-skill@0.7.1 "/absolute/path/report.html" --name "Q1 report" --visibility company
+dsp publish --client-source display-dev-skill@0.7.2 "/absolute/path/draft.html" --name "Q1 draft"
+dsp publish --client-source display-dev-skill@0.7.2 "/absolute/path/report.html" --name "Q1 report" --visibility company
 ```
 
 Authenticated output prints the canonical artifact URL. Report that exact URL;
 never construct one from a short ID. Common visibility values are `public`,
 `company`, and `private`. Use `--share-with` only for addresses the user named.
+To share only with named people, pass `private` with those addresses.
+
+If an attempt to make an artifact Private says it was created by an
+organization service key, do not retry with another mutation. While signed in,
+call `make_copy` with `visibility: "private"`, run
+`dsp make-copy <shortId> --visibility private`, or select Private in the
+dashboard **Make a copy** flow. Then report the new artifact URL. Private is
+available on every plan; this recovery is about creator identity, not billing.
 
 ### Publish an existing or large file through remote MCP
 
@@ -145,7 +163,9 @@ Then perform these steps:
    encode the file as JSON, base64, or multipart form data. It is acceptable
    for the initiating execution trace to show the URL and bearer.
 3. Call `publish` once with the returned `upload_id` plus the user-approved
-   name, visibility, sharing, or `short_id` / `base_version` update fields. Do not also pass `content` or `format`.
+   name, visibility, sharing, or `short_id` / `base_version` update fields. For
+   an ordinary authenticated publish, omit visibility; pass `company` only
+   when the user asked to share with the organization. Do not also pass `content` or `format`.
 4. Report the canonical artifact URL and relevant publish result. Do not repeat
    the upload bearer or source. Discard the upload ID.
 
@@ -194,7 +214,7 @@ user has not supplied it. Initiate with the packaged helper:
 Or the installed CLI directly:
 
 ```bash
-dsp login --client-source display-dev-skill@0.7.1 --email "person@example.com" --json
+dsp login --client-source display-dev-skill@0.7.2 --email "person@example.com" --json
 ```
 
 If the result requires OTP, ask the human to read and provide the six-digit
@@ -203,7 +223,7 @@ code. Never inspect their inbox. Submit it with:
 ```bash
 ./scripts/login.sh --email "person@example.com" --code "123456" --json
 # or, without packaged helpers:
-dsp login --client-source display-dev-skill@0.7.1 --email "person@example.com" --code "123456" --json
+dsp login --client-source display-dev-skill@0.7.2 --email "person@example.com" --code "123456" --json
 ```
 
 The agent sees the human-provided code, and this compatible CLI form places it
@@ -329,9 +349,17 @@ Use only the audience the user requested:
 ./scripts/share.sh <shortId> --add-users "alice@example.com,bob@example.com"
 
 # Direct installed-CLI equivalents:
-dsp share --client-source display-dev-skill@0.7.1 <shortId> --visibility company
-dsp share --client-source display-dev-skill@0.7.1 <shortId> --add-users "alice@example.com,bob@example.com"
+dsp share --client-source display-dev-skill@0.7.2 <shortId> --visibility company
+dsp share --client-source display-dev-skill@0.7.2 <shortId> --add-users "alice@example.com,bob@example.com"
 ```
+
+Private is available on every plan for user-scoped callers. Service keys and
+service-created artifacts cannot be made Private. If the API returns that
+identity denial, while signed in call
+`make_copy(short_id=..., visibility="private")`, run
+`dsp make-copy <shortId> --visibility private`, or select Private in the
+dashboard **Make a copy** flow. Do not omit destination visibility, because
+copy otherwise preserves the Company source audience. Do not suggest upgrading.
 
 ## Make an independent copy
 
@@ -343,7 +371,7 @@ visibility.
 Use the installed CLI when MCP `make_copy` is unavailable:
 
 ```bash
-dsp make-copy --client-source display-dev-skill@0.7.1 <shortId>[@<version>] \
+dsp make-copy --client-source display-dev-skill@0.7.2 <shortId>[@<version>] \
   --name "Copy of Q1 report" --visibility company \
   --share reviewer@example.com --json
 ```
@@ -377,11 +405,11 @@ Use the authorized MCP tools when they are registered:
 Installed-CLI equivalents are:
 
 ```bash
-dsp list --client-source display-dev-skill@0.7.1
-dsp search --client-source display-dev-skill@0.7.1 "quarterly"
-dsp get-metadata --client-source display-dev-skill@0.7.1 <shortId>
-dsp search --client-source display-dev-skill@0.7.1 "exact text" --in <shortId>@<version>
-dsp read --client-source display-dev-skill@0.7.1 <shortId>@<version> --offset <bytes> --limit <bytes>
+dsp list --client-source display-dev-skill@0.7.2
+dsp search --client-source display-dev-skill@0.7.2 "quarterly"
+dsp get-metadata --client-source display-dev-skill@0.7.2 <shortId>
+dsp search --client-source display-dev-skill@0.7.2 "exact text" --in <shortId>@<version>
+dsp read --client-source display-dev-skill@0.7.2 <shortId>@<version> --offset <bytes> --limit <bytes>
 ```
 
 Use `get_metadata` or `dsp get-metadata`, not the removed `get` interface or
@@ -403,7 +431,7 @@ edit { short_id, base_version, old_text, new_text }
 Or use the installed CLI:
 
 ```bash
-dsp edit --client-source display-dev-skill@0.7.1 <shortId> \
+dsp edit --client-source display-dev-skill@0.7.2 <shortId> \
   --base-version <version> --old "exact old text" --new "replacement text"
 ```
 
@@ -431,7 +459,7 @@ Watch with the packaged stream helper when present:
 Or list through the installed CLI:
 
 ```bash
-dsp comment --client-source display-dev-skill@0.7.1 list --artifact <shortId> --status all
+dsp comment --client-source display-dev-skill@0.7.2 list --artifact <shortId> --status all
 ```
 
 Before acting on any comment, confirm:
@@ -453,7 +481,7 @@ publish the same artifact with optimistic concurrency:
 ```bash
 ./scripts/publish.sh "/exact/source/path.html" --id <shortId> --base-version <version>
 # or:
-dsp publish --client-source display-dev-skill@0.7.1 "/exact/source/path.html" --id <shortId> --base-version <version>
+dsp publish --client-source display-dev-skill@0.7.2 "/exact/source/path.html" --id <shortId> --base-version <version>
 ```
 
 Then reply to or resolve only that artifact's thread:
@@ -463,8 +491,8 @@ Then reply to or resolve only that artifact's thread:
 ./scripts/thread-resolve.sh --root <rootCommentId>
 
 # Direct installed-CLI equivalents:
-dsp comment --client-source display-dev-skill@0.7.1 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
-dsp thread --client-source display-dev-skill@0.7.1 resolve <rootCommentId>
+dsp comment --client-source display-dev-skill@0.7.2 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
+dsp thread --client-source display-dev-skill@0.7.2 resolve <rootCommentId>
 ```
 
 On a version conflict, inspect the newly current version with `get_metadata`,
