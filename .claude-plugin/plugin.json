@@ -1,7 +1,7 @@
 {
   "name": "display-dev",
   "description": "Publish, browse, search, read, edit, and share HTML or Markdown artifacts with public, private, or company-authenticated access.",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "author": {
     "name": "display.dev",
     "url": "https://display.dev"
