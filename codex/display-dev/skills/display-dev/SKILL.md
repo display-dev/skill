@@ -10,7 +10,8 @@ description: >
   "read this artifact", "search inside this artifact", "change this passage",
   "make a copy of this artifact", "duplicate version",
   "create a display.dev account", "claim this publish", "add a company email
-  domain", "transfer an email domain", "show my referral link", "show referral
+  domain", "transfer an email domain", "change the email domains add-on",
+  "show my referral link", "show referral
   rewards", "watch comments on this artifact",
   "respond to comments", or "resolve this comment thread".
   Use whenever a request contains a display.dev artifact URL (`*.dsp.so/*`).
@@ -259,6 +260,12 @@ dsp email-domains add <domain>
 dsp email-domains verify <domain>
 dsp email-domains remove <domain>
 ```
+
+The paid email domains add-on is human-operated. Neither MCP nor the direct CLI
+can enable or disable it. If the user asks to change it, direct a current Owner
+to **Settings → Email Domains**. Do not call the REST endpoint as a fallback or
+claim the add-on changed. After the Owner completes the change, continue with
+the registered domain-management tools when needed.
 
 For a foreign-domain collision, surface the request-specific TXT record and
 state that DNS verification does not move the domain by itself. After

@@ -44,6 +44,7 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "make a copy of this artifact" / "duplicate version 3"
 - "add a company email domain"
 - "transfer an email domain"
+- "change the email domains add-on"
 - "show my referral link" / "show referral rewards"
 
 You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
@@ -79,6 +80,9 @@ The skill also covers email-domain list, add, DNS verification, transfer
 status, and cancellation through MCP or `dsp email-domains`. A current target
 Owner completes an eligible transfer in **Settings → Email Domains**; agents
 and the CLI never perform the irreversible confirmation.
+
+The paid email domains add-on is also managed by a current Owner in **Settings
+→ Email Domains**. MCP and the direct CLI do not enable or disable it.
 
 For the referral program, the skill uses the read-only
 `get_referral_overview` MCP tool to return the link available to the current

@@ -232,6 +232,29 @@ if grep -F 'fetch/export, reconcile' "$ROOT/display-dev/SKILL.md" >/dev/null; th
 fi
 pass 'artifact read, search, metadata, exact-edit, and copy workflow'
 
+REQUIRED_EMAIL_DOMAIN_WORKFLOW=(
+  'The paid email domains add-on is human-operated.'
+  'Neither MCP nor the direct CLI'
+  'Settings → Email Domains'
+  'Do not call the REST endpoint as a fallback'
+)
+for instruction in "${REQUIRED_EMAIL_DOMAIN_WORKFLOW[@]}"; do
+  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+    || fail "standalone skill omits email-domain billing instruction: $instruction"
+done
+FORBIDDEN_EMAIL_DOMAIN_BILLING=(
+  'enable_email_domains_addon'
+  'disable_email_domains_addon'
+  'dsp email-domains addon'
+  '/v1/org/email-domains/addon/'
+)
+for instruction in "${FORBIDDEN_EMAIL_DOMAIN_BILLING[@]}"; do
+  if grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null; then
+    fail "standalone skill advertises forbidden email-domain billing surface: $instruction"
+  fi
+done
+pass 'email-domain billing remains human-operated'
+
 SKILL_SOURCE_VERSIONS="$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/display-dev/SKILL.md" | sort -u)"
 [[ "$SKILL_SOURCE_VERSIONS" == "display-dev-skill@$WANT_VERSION" ]] \
   || fail "standalone skill attribution version is '$SKILL_SOURCE_VERSIONS' (want display-dev-skill@$WANT_VERSION)"
