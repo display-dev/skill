@@ -94,6 +94,11 @@ For an existing artifact, the skill prefers MCP `make_copy` or `dsp make-copy` t
 a new artifact from a retained version. Discussions and people invited to the
 source are not carried over. The user can choose recipients for the new artifact.
 
+If an organization blocks public artifacts or outside sharing, the skill explains
+the returned policy denial and asks before changing the requested audience or
+recipients. Only an Owner can change either control in the dashboard; the CLI
+and MCP tools do not provide a policy override.
+
 ## Codex local development (maintainers)
 
 The Codex plugin bundle lives under `codex/display-dev/` and is built from the canonical skill. After editing `display-dev/`, regenerate the mounts and install from the repo-local marketplace (`.agents/plugins/marketplace.json`):

@@ -143,6 +143,31 @@ call `make_copy` with `visibility: "private"`, run
 dashboard **Make a copy** flow. Then report the new artifact URL. Private is
 available on every plan; this recovery is about creator identity, not billing.
 
+### Organization access restrictions
+
+An organization Owner can turn off public artifacts or sharing outside the
+organization in **Settings → Organization → Security**. These controls apply to
+ordinary CLI and MCP publish, edit, copy, and share actions; neither interface
+can change the controls. Do not look for a policy-management tool or use a raw
+API call to bypass a denial.
+
+- `public_artifacts_disabled`: a Public publish, copy, visibility change, or
+  update to a stored Public artifact cannot proceed. For a new artifact, ask
+  whether Company or Private meets the user's intended audience, then retry
+  only with that approval. For an existing Public artifact, ask an Owner to
+  allow public artifacts, or get the user's approval to narrow its visibility
+  before updating it. A narrower audience may still hit the plan's gated-
+  artifact limit. Do not silently change the audience.
+- `external_sharing_disabled`: adding people outside the organization cannot
+  proceed. Ask whether the user wants to remove those proposed recipients, or
+  ask an Owner to allow outside sharing. Do not silently drop recipients or
+  substitute organization membership for guest access.
+
+When the API includes `details.settings_url`, pass that link to the user. A
+restriction remains in effect after a plan downgrade; only a current Owner can
+change it in the dashboard. Existing Public visibility and recipient entries
+remain recorded while access is restricted, so re-enabling can restore access.
+
 ### Publish an existing or large file through remote MCP
 
 Prefer inline `publish(content=...)` for small HTML or Markdown values generated

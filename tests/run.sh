@@ -232,6 +232,20 @@ if grep -F 'fetch/export, reconcile' "$ROOT/display-dev/SKILL.md" >/dev/null; th
 fi
 pass 'artifact read, search, metadata, exact-edit, and copy workflow'
 
+REQUIRED_ACCESS_POLICY_WORKFLOW=(
+  '`public_artifacts_disabled`'
+  '`external_sharing_disabled`'
+  'Do not silently change the audience.'
+  'Do not silently drop recipients or'
+  'details.settings_url'
+  'neither interface'
+)
+for instruction in "${REQUIRED_ACCESS_POLICY_WORKFLOW[@]}"; do
+  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+    || fail "standalone skill omits organization access-policy instruction: $instruction"
+done
+pass 'organization access-policy denials keep audience decisions with the user'
+
 REQUIRED_EMAIL_DOMAIN_WORKFLOW=(
   'The paid email domains add-on is human-operated.'
   'Neither MCP nor the direct CLI'
