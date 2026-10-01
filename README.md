@@ -47,7 +47,7 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "change the email domains add-on"
 - "show my referral link" / "show referral rewards"
 
-You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
+You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. To create an account or sign in, connect the bundled remote MCP server through OAuth where the host supports it, or run `dsp login --email you@example.com` in your own terminal and enter the six-digit code there. The installed `dsp` CLI stores the resulting session. The skill never asks for, reads, or relays the code, and never instructs an agent to inspect your inbox.
 
 Authenticated remote MCP uses inline `publish(content=...)` for small generated
 values. For an existing or large HTML/Markdown file, the skill can call

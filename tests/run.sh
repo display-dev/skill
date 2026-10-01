@@ -269,6 +269,27 @@ for instruction in "${FORBIDDEN_EMAIL_DOMAIN_BILLING[@]}"; do
 done
 pass 'email-domain billing remains human-operated'
 
+FORBIDDEN_SIGN_IN_RELAY=(
+  '--code'
+  'read and provide'
+  'provide the six-digit'
+  'login.sh --email'
+)
+for instruction in "${FORBIDDEN_SIGN_IN_RELAY[@]}"; do
+  if grep -R -n -F -e "$instruction" "$ROOT/display-dev/SKILL.md" "$ROOT/display-dev/scripts"; then
+    fail "standalone skill asks the agent to relay a sign-in code: $instruction"
+  fi
+done
+REQUIRED_SIGN_IN_RULES=(
+  'Never ask for, read, or relay a display.dev sign-in code.'
+  'Never run `dsp login` or `./scripts/login.sh` yourself, in any shell'
+)
+for instruction in "${REQUIRED_SIGN_IN_RULES[@]}"; do
+  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+    || fail "standalone skill omits sign-in rule: $instruction"
+done
+pass 'sign-in codes stay with the user'
+
 SKILL_SOURCE_VERSIONS="$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/display-dev/SKILL.md" | sort -u)"
 [[ "$SKILL_SOURCE_VERSIONS" == "display-dev-skill@$WANT_VERSION" ]] \
   || fail "standalone skill attribution version is '$SKILL_SOURCE_VERSIONS' (want display-dev-skill@$WANT_VERSION)"
