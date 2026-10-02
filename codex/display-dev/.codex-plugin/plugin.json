@@ -11,11 +11,16 @@
   "keywords": ["display.dev", "publish", "search", "read", "edit", "share", "sso", "company-auth", "codex", "mcp"],
   "interface": {
     "displayName": "display.dev",
-    "shortDescription": "Publish, inspect, edit, and share artifacts.",
-    "longDescription": "Publish HTML and Markdown artifacts, browse and search published work, read bounded source context, make exact versioned edits, and share with public, private, or company-authenticated access. The Codex plugin bundles the display.dev skill and remote MCP server.",
+    "shortDescription": "Publish and share agent docs",
+    "longDescription": "Publish HTML and Markdown from your agent as display.dev artifacts. Browse and search published work, read bounded source context, make exact versioned edits, copy artifacts, share them with public, private, or company-authenticated access, and iterate on reviewer comments. For teams whose agents write reports, specs, and other documents that people review. The plugin bundles the display.dev skill and the remote display.dev MCP server. You sign in to display.dev through OAuth, and the plugin acts only on the artifacts and settings your account can access. Billing changes stay in the display.dev dashboard.",
     "developerName": "display.dev",
     "category": "Productivity",
+    "capabilities": ["Publish HTML and Markdown", "Search and read artifacts", "Make versioned edits", "Share with access controls", "Iterate on comments"],
     "websiteURL": "https://display.dev",
+    "supportURL": "https://display.dev/support",
+    "privacyPolicyURL": "https://display.dev/privacy",
+    "termsOfServiceURL": "https://display.dev/terms",
+    "composerIcon": "./assets/logo.svg",
     "logo": "./assets/logo.svg"
   }
 }
