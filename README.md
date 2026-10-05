@@ -23,7 +23,7 @@ npx skills add display-dev/skill --skill display-dev
 codex plugin marketplace add display-dev/skill
 ```
 
-Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, `get_referral_overview`, sharing, and comment tools are available after sign-in – no separate MCP setup.
+Then open Codex `/plugins`, install **Display**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, `get_referral_overview`, sharing, and comment tools are available after sign-in – no separate MCP setup.
 
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
@@ -108,7 +108,7 @@ bin/sync-mounts.sh
 codex plugin marketplace add ./path/to/display-dev-skill
 ```
 
-Restart Codex, then install **display.dev** from the local marketplace via `/plugins`.
+Restart Codex, then install **Display** from the local marketplace via `/plugins`.
 
 ## MCP transport – installed stdio fallback
 
