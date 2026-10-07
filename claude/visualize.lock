@@ -1,0 +1,5 @@
+# Pinned Visualize release bundled in the Claude Code plugin.
+# Edit the source in github.com/display-dev/visualize, release it there,
+# then bump these two lines and run bin/sync-visualize.sh.
+repo=https://github.com/display-dev/visualize.git
+tag=v0.7.0
