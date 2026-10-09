@@ -1,0 +1,29 @@
+{
+  "description": "display.dev: secret scan before a publish, and a note about new comments at session start.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|mcp__plugin_display-dev_display-dev__publish|mcp__claude_ai_Display_dev__publish",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/claude/hooks/publish-guard.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/claude/hooks/comment-digest.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

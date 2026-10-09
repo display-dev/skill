@@ -10,12 +10,33 @@ Public agent skill that teaches your AI assistant how to publish small inline va
 npx skills add display-dev/skill --skill display-dev
 ```
 
-### Claude Code – plugin
+### Claude Code – plugin (skill + Visualize + bundled MCP server)
 
 ```sh
 /plugin marketplace add display-dev/skill
 /plugin install display-dev@display-dev
 ```
+
+Then run `/mcp` and complete OAuth for `plugin:display-dev:display-dev`. The
+Claude Code plugin contains:
+
+- the display.dev skill;
+- the [Visualize](https://github.com/display-dev/visualize) skill for on-brand
+  HTML reports, plans, and decks (a pinned release, see `claude/visualize.lock`);
+- the remote MCP server (`https://api.display.dev/v1/mcp`);
+- `/display-dev:feedback`: lists your artifacts with open comments, shows a
+  plan for each thread, and after you approve it, edits the artifact, replies,
+  and resolves the threads;
+- a hook that scans a publish for secrets (API keys, tokens, private keys). It
+  blocks a public publish and asks before any other publish;
+- a hook that tells you at session start which of your artifacts have new
+  comments. It reads only the open-thread counts, not the comment text.
+
+The hooks need the `dsp` CLI for the comment note and run in Claude Code and
+in Cowork on your own computer. Claude.ai loads the skills and the command but
+not the hooks. There, connect the display.dev connector for the tools. If you
+also turned on the display.dev connector in Claude Code, the agent sees two
+sets of display.dev tools and uses one of them.
 
 ### Codex – plugin (skill + bundled MCP server)
 

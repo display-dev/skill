@@ -4,6 +4,8 @@
 
 - **Canonical skill content** lives under `display-dev/` (`SKILL.md`, `scripts/`, `bin/`). Edit it here only.
 - **Hand-authored metadata/config/docs** outside `display-dev/` is edited directly: the plugin manifests (`.cursor-plugin/`, `.claude-plugin/`, `codex/display-dev/.codex-plugin/`), the Codex MCP config (`codex/display-dev/.mcp.json`), the marketplaces (`.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`), `README.md`, and this file.
+- **Claude Code plugin components** live under `claude/` and are edited directly: the `/display-dev:feedback` command (`claude/commands/`), the hooks (`claude/hooks/`), and their tests (`tests/claude-hooks.sh`). `.claude-plugin/plugin.json` points at them, so other hosts do not load them.
+- **Bundled Visualize is never hand-edited.** `claude/skills/visualize/` is a copy of one `display-dev/visualize` release. Change Visualize in its own repo, release it, set the new tag in `claude/visualize.lock`, then run `bin/sync-visualize.sh`. CI runs `bin/sync-visualize.sh --check`.
 - **Generated skill mounts are never hand-edited.** `bin/transform.mjs` mirrors `display-dev/` to `skills/display-dev/`, `hermes/productivity/display.dev/`, `pi/agent/skills/display-dev/`, and `codex/display-dev/skills/display-dev/`, resolving per-host placeholders. CI fails if any mount drifts.
 
 After editing `display-dev/`:
@@ -29,6 +31,7 @@ generated mounts, or release packaging:
 ```sh
 bin/sync-mounts.sh --check
 bash tests/run.sh
+bash tests/claude-hooks.sh
 ```
 
 `tests/run.sh` creates its own temporary home and restricted `PATH`. Its
@@ -163,5 +166,7 @@ Verify those separately after the release is live.
 - `display-dev/SKILL.md` (every embedded `display-dev-skill@<version>` attribution literal)
 - `codex/display-dev/.codex-plugin/plugin.json`
 - `codex/display-dev/.mcp.json` (the `display-dev-codex-plugin@<version>` suffix in `X-Client-Source`)
+- `.claude-plugin/plugin.json` `mcpServers` (the `display-dev-claude-plugin@<version>` suffix in `X-Client-Source`)
+- `claude/commands/feedback.md` (every `display-dev-claude-plugin@<version>` literal)
 
 For local testing without editing the file, set `SKILL_VERSION_OVERRIDE` in your environment.
