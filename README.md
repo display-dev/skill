@@ -38,6 +38,17 @@ not the hooks. There, connect the display.dev connector for the tools. If you
 also turned on the display.dev connector in Claude Code, the agent sees two
 sets of display.dev tools and uses one of them.
 
+#### What the Claude Code plugin runs and sends
+
+| Part | Runs | Sends or fetches | Stores |
+|---|---|---|---|
+| display.dev skill | The bundled helper scripts, the installed `dsp` CLI, and a bundled `jq` binary for JSON | Requests to `api.display.dev` for the actions you ask for. An anonymous publish sends the file to `https://api.display.dev/v1/public/artifacts`. | Nothing. `dsp` keeps its own sign-in. |
+| MCP server | Nothing on your machine | Tool calls to `https://api.display.dev/v1/mcp` after you sign in with OAuth, with the header `X-Client-Source: display-dev-claude-plugin@<version>` | Nothing |
+| Publish guard hook | `claude/hooks/publish-guard.sh` before each Bash command and each display.dev `publish` tool call | Nothing. It reads only the files named in a publish command, or the `content` of an MCP publish, and checks them for secrets on your machine. | Nothing |
+| Comment note hook | `claude/hooks/comment-digest.sh` at session start, only when `dsp` is installed | One request through `dsp` to `api.display.dev`: your 100 most recently updated artifacts with their names and open-thread counts. It never fetches comment text. | The open-thread count and name of each of your artifacts with open threads, in Claude Code's plugin data folder (`open-thread-counts.json`) |
+| `/display-dev:feedback` | `dsp` commands or MCP tool calls | Reads the metadata, open comments, and source of the artifact you choose. After you approve the plan, publishes the new version and posts replies and resolves to `api.display.dev`. | A temporary copy of the artifact source while it edits |
+| Visualize skill | Local scripts for brand capture, checks, and rendering. Mermaid diagrams run `@mermaid-js/mermaid-cli@11.12.0` through `npx`. | Nothing by default. Only when you explicitly choose OpenAI or Google for image generation, it reads `OPENAI_API_KEY` or `GEMINI_API_KEY` from your environment and sends the image brief and any reference images to `api.openai.com` or `generativelanguage.googleapis.com`. Publishing goes through display.dev. | The HTML files it writes in your project |
+
 ### Codex – plugin (skill + bundled MCP server)
 
 ```sh
