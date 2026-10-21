@@ -5,6 +5,13 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/display-dev-skill-tests.XXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
 
+STANDALONE="$TMP_DIR/SKILL.md"
+if [[ $# -eq 1 ]]; then
+  cp "$1" "$STANDALONE"
+else
+  node "$ROOT/bin/build-standalone.mjs" "$ROOT/display-dev" "$STANDALONE"
+fi
+
 SYSTEM_PATH="/usr/bin:/bin"
 WITH_DSP="$ROOT/tests/fixtures/with-dsp"
 NO_DSP="$ROOT/tests/fixtures/no-dsp"
@@ -183,15 +190,15 @@ DESCRIPTION="$(awk '
 [[ ${#DESCRIPTION} -le 1024 ]] \
   || fail "frontmatter description exceeds 1024 characters (${#DESCRIPTION})"
 
-grep -F 'https://api.display.dev/v1/public/artifacts' "$ROOT/display-dev/SKILL.md" >/dev/null \
+grep -F 'https://api.display.dev/v1/public/artifacts' "$STANDALONE" >/dev/null \
   || fail 'standalone skill omits the fixed anonymous endpoint'
-grep -F '[[ $# -ne 1 ]]' "$ROOT/display-dev/SKILL.md" >/dev/null \
+grep -F '[[ $# -ne 1 ]]' "$STANDALONE" >/dev/null \
   || fail 'standalone recipe omits the exactly-one-file check'
-grep -F '[[ "$file" == "-" || ! -r "$file" ]]' "$ROOT/display-dev/SKILL.md" >/dev/null \
+grep -F '[[ "$file" == "-" || ! -r "$file" ]]' "$STANDALONE" >/dev/null \
   || fail 'standalone recipe omits readable-file or exact-dash checks'
-grep -F '[[ "$file" == *'"'"'"'"'"'* || "$file" == *'"'"';'"'"'* || "$file" == *'"'"','"'"'* || "$file" =~ [[:cntrl:]] ]]' "$ROOT/display-dev/SKILL.md" >/dev/null \
+grep -F '[[ "$file" == *'"'"'"'"'"'* || "$file" == *'"'"';'"'"'* || "$file" == *'"'"','"'"'* || "$file" =~ [[:cntrl:]] ]]' "$STANDALONE" >/dev/null \
   || fail 'standalone recipe omits filename character checks'
-grep -F 'curl -sS -X POST' "$ROOT/display-dev/SKILL.md" >/dev/null \
+grep -F 'curl -sS -X POST' "$STANDALONE" >/dev/null \
   || fail 'standalone anonymous publishing still requires packaged scripts'
 
 REQUIRED_ARTIFACT_WORKFLOW=(
@@ -224,10 +231,10 @@ REQUIRED_ARTIFACT_WORKFLOW=(
   'use `dsp publish`'
 )
 for instruction in "${REQUIRED_ARTIFACT_WORKFLOW[@]}"; do
-  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+  grep -F "$instruction" "$STANDALONE" >/dev/null \
     || fail "standalone skill omits artifact workflow instruction: $instruction"
 done
-if grep -F 'fetch/export, reconcile' "$ROOT/display-dev/SKILL.md" >/dev/null; then
+if grep -F 'fetch/export, reconcile' "$STANDALONE" >/dev/null; then
   fail 'standalone skill still teaches the old export-first recovery workflow'
 fi
 pass 'artifact read, search, metadata, exact-edit, and copy workflow'
@@ -241,7 +248,7 @@ REQUIRED_ACCESS_POLICY_WORKFLOW=(
   'neither interface'
 )
 for instruction in "${REQUIRED_ACCESS_POLICY_WORKFLOW[@]}"; do
-  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+  grep -F "$instruction" "$STANDALONE" >/dev/null \
     || fail "standalone skill omits organization access-policy instruction: $instruction"
 done
 pass 'organization access-policy denials keep audience decisions with the user'
@@ -253,7 +260,7 @@ REQUIRED_EMAIL_DOMAIN_WORKFLOW=(
   'Do not call the REST endpoint as a fallback'
 )
 for instruction in "${REQUIRED_EMAIL_DOMAIN_WORKFLOW[@]}"; do
-  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+  grep -F "$instruction" "$STANDALONE" >/dev/null \
     || fail "standalone skill omits email-domain billing instruction: $instruction"
 done
 FORBIDDEN_EMAIL_DOMAIN_BILLING=(
@@ -263,7 +270,7 @@ FORBIDDEN_EMAIL_DOMAIN_BILLING=(
   '/v1/org/email-domains/addon/'
 )
 for instruction in "${FORBIDDEN_EMAIL_DOMAIN_BILLING[@]}"; do
-  if grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null; then
+  if grep -R -n -F -e "$instruction" "$ROOT/display-dev/SKILL.md" "$ROOT/display-dev/references" "$STANDALONE"; then
     fail "standalone skill advertises forbidden email-domain billing surface: $instruction"
   fi
 done
@@ -276,7 +283,7 @@ FORBIDDEN_SIGN_IN_RELAY=(
   'login.sh --email'
 )
 for instruction in "${FORBIDDEN_SIGN_IN_RELAY[@]}"; do
-  if grep -R -n -F -e "$instruction" "$ROOT/display-dev/SKILL.md" "$ROOT/display-dev/scripts"; then
+  if grep -R -n -F -e "$instruction" "$ROOT/display-dev/SKILL.md" "$ROOT/display-dev/references" "$STANDALONE" "$ROOT/display-dev/scripts"; then
     fail "standalone skill asks the agent to relay a sign-in code: $instruction"
   fi
 done
@@ -285,12 +292,12 @@ REQUIRED_SIGN_IN_RULES=(
   'Never run `dsp login` or `./scripts/login.sh` yourself, in any shell'
 )
 for instruction in "${REQUIRED_SIGN_IN_RULES[@]}"; do
-  grep -F "$instruction" "$ROOT/display-dev/SKILL.md" >/dev/null \
+  grep -F "$instruction" "$STANDALONE" >/dev/null \
     || fail "standalone skill omits sign-in rule: $instruction"
 done
 pass 'sign-in codes stay with the user'
 
-SKILL_SOURCE_VERSIONS="$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/display-dev/SKILL.md" | sort -u)"
+SKILL_SOURCE_VERSIONS="$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' "$STANDALONE" | sort -u)"
 [[ "$SKILL_SOURCE_VERSIONS" == "display-dev-skill@$WANT_VERSION" ]] \
   || fail "standalone skill attribution version is '$SKILL_SOURCE_VERSIONS' (want display-dev-skill@$WANT_VERSION)"
 pass 'static trust-boundary invariants'

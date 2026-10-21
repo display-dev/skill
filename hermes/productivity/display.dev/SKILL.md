@@ -181,51 +181,13 @@ true:
   approaches the safe inline tool-call ceiling; and
 - the code-execution environment can send HTTPS requests to `api.display.dev`.
 
-Then perform these steps:
-
-1. Measure the raw file byte length without reading its contents into the
-   conversation. Call `create_upload` with the basename and exact `size_bytes`.
-2. In code execution, send the raw file bytes with `PUT` to the returned
-   first-party `upload_url`. Use every exact entry in `required_headers`,
-   including `Authorization`, `Content-Type`, and `Content-Length`. Do not
-   encode the file as JSON, base64, or multipart form data. It is acceptable
-   for the initiating execution trace to show the URL and bearer.
-3. Call `publish` once with the returned `upload_id` plus the user-approved
-   name, visibility, sharing, or `short_id` / `base_version` update fields. For
-   an ordinary authenticated publish, omit visibility; pass `company` only
-   when the user asked to share with the organization. Do not also pass `content` or `format`.
-4. Report the canonical artifact URL and relevant publish result. Do not repeat
-   the upload bearer or source. Discard the upload ID.
-
-The capability expires after 15 minutes. Do not finalize the same staged create concurrently. If `publish` returns `upload_unavailable`, start again with a new
-`create_upload` without inferring or revealing whether expiry, ticket validity,
-organization binding, or a missing object caused it. If it returns
-`upload_size_mismatch`, report that exact mismatch, measure the raw file again,
-and start with a new upload. Never reuse the old upload ID. Current per-artifact limits still apply: 10MB on
-Free and 50MB on Solo, Pro, and Enterprise, including when the plan changes
-between staging and publishing.
+When these prerequisites hold, read [references/staged-upload.md](references/staged-upload.md)
+before calling `create_upload`.
 
 If the tools are absent or `api.display.dev` is unreachable, use `dsp publish`
 where the file exists, ask the user to publish through the dashboard, or use
 inline `content` only when the source is small enough. Never install a runtime
 or move credentials to work around the missing capability.
-
-For Claude Cowork Team and Enterprise, an Owner or Primary Owner must allow
-`api.display.dev` for code execution, then the user must start a new task. MCP
-connector traffic uses a separate path and does not grant shell egress.
-Personal Claude Pro and Max currently provide no custom code-execution domain
-allowlist, so large staged publishing is unavailable there; use one of the
-fallbacks above.
-
-Example:
-
-```text
-User: Publish the 20MB report generated in code execution for my organization.
-Agent: Confirms the authorized remote tools, measures the file, calls
-create_upload, transfers raw bytes through api.display.dev with every returned
-header, calls publish(upload_id=...), and reports the artifact URL without the
-temporary bearer or source.
-```
 
 ## Create or sign in to a display.dev account
 
@@ -263,26 +225,8 @@ provisioning result.
 
 ## Add or transfer a company email domain
 
-Email-domain management is Owner-only. Prefer the authorized MCP tools when
-they are registered:
-
-- `list_email_domains` lists verified, pending, dormant, and transfer states.
-- `add_email_domain` adds a domain and returns the DNS TXT record. A domain
-  already connected elsewhere creates an inert transfer request.
-- `verify_email_domain` checks the fresh TXT record for an ordinary claim or
-  transfer request. It also rechecks a support-required transfer after support
-  confirms the blocker is resolved.
-- `remove_email_domain` removes an ordinary row or cancels a non-terminal
-  transfer request.
-
-Installed-CLI equivalents are:
-
-```bash
-dsp email-domains list
-dsp email-domains add <domain>
-dsp email-domains verify <domain>
-dsp email-domains remove <domain>
-```
+Email-domain management is Owner-only. For listing, adding, verifying, transferring,
+or removing a domain, first read [references/email-domains.md](references/email-domains.md).
 
 The paid email domains add-on is human-operated. Neither MCP nor the direct CLI
 can enable or disable it. If the user asks to change it, direct a current Owner
@@ -290,48 +234,11 @@ to **Settings → Email Domains**. Do not call the REST endpoint as a fallback o
 claim the add-on changed. After the Owner completes the change, continue with
 the registered domain-management tools when needed.
 
-For a foreign-domain collision, surface the request-specific TXT record and
-state that DNS verification does not move the domain by itself. After
-verification, report `transfer_ready` or `transfer_support_required` without
-inferring the source organization or its contents. Source-owner approval is
-not required.
-
-Handle each returned transfer state explicitly:
-
-- `transfer_pending_dns`: publish the request-specific TXT record, then verify.
-  The Owner may cancel it with `remove_email_domain` or
-  `dsp email-domains remove <domain>`.
-- `transfer_ready`: send a current target Owner to **Settings → Email Domains**
-  for final review and confirmation. The Owner may still cancel instead.
-- `transfer_support_required`: do not guess at hidden source details. Tell the
-  user to contact support. After support confirms the issue is resolved, run
-  `verify_email_domain` or `dsp email-domains verify <domain>` again on the
-  same unexpired request. The existing DNS proof is retained. If the retry
-  remains support-required, report that result without exposing or guessing
-  source details. The Owner may cancel instead.
-- `transfer_expired`: the request is terminal and cannot be cancelled. Run
-  `add_email_domain` or `dsp email-domains add <domain>` again to create a new
-  request and fresh TXT record.
-
-Completed transfers appear as ordinary `verified` rows. Cancelled requests are
-terminal and no longer actionable; add the domain again only when the user
-intends to start a fresh request.
-
 Final confirmation is dashboard-only. When a transfer is ready, direct a
 current target Owner to **Settings → Email Domains** to review the people who
 will move, accept session revocation and source retirement, and confirm.
 Neither an MCP tool nor the CLI can complete the transfer. Never claim
 completion after DNS verification.
-
-Example:
-
-```text
-User: Transfer example.com to this organization.
-Agent: add_email_domain returns a fresh TXT record because example.com is
-already connected elsewhere. The user publishes it, then the agent runs
-verify_email_domain. If the result is transfer_ready, the agent sends a target
-Owner to Settings → Email Domains for the final review and confirmation.
-```
 
 ## Share an artifact
 
