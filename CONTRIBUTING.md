@@ -185,6 +185,13 @@ Verify those separately after the release is live.
 
 ## Releasing
 
+Dated release assets are preserved: discovery indexes may continue advertising
+an older release after a newer one becomes latest. `checksums.json` includes
+`releaseTag` (`release-<40-hex-sourceSha>-<unix>`) alongside the asset digests,
+sizes, `sourceSha`, and `builtAt`; the website uses it to bind download URLs to
+the release whose digests it advertises. Do not replace assets on a dated release
+or delete them as part of routine publishing.
+
 `SKILL_VERSION` in `display-dev/scripts/_common.sh` is the single source of truth for the release version — it travels on `X-Client-Source: display-dev-skill@<version>` for analytics attribution. Bump it in lockstep with every git tag, and bump it together with every other version-bearing file, because CI asserts they all match:
 
 - `.cursor-plugin/plugin.json`
