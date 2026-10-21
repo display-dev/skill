@@ -15,6 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
       - name: Skill scripts stay executable (canonical + generated mounts)
         # Proves the committed install payload is runnable. Canonical scripts
         # are checked as committed (not chmod'd first), so a script committed
@@ -106,7 +110,7 @@ jobs:
         run: bash tests/claude-hooks.sh
 
       - name: Candidate archive contract
-        run: node --test tests/archive-candidate.test.mjs
+        run: node --test tests/archive-candidate.test.mjs tests/standalone.test.mjs
 
       - name: ShellCheck
         # Pinned to v2.0.0 by full commit SHA — public-repo supply-chain
