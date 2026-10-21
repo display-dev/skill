@@ -196,7 +196,6 @@ or delete them as part of routine publishing.
 
 - `.cursor-plugin/plugin.json`
 - `.claude-plugin/plugin.json`
-- `.claude-plugin/marketplace.json`
 - `display-dev/SKILL.md` (every embedded `display-dev-skill@<version>` attribution literal)
 - `codex/display-dev/.codex-plugin/plugin.json`
 - `codex/display-dev/.mcp.json` (the `display-dev-codex-plugin@<version>` suffix in `X-Client-Source`)
@@ -204,3 +203,7 @@ or delete them as part of routine publishing.
 - `claude/commands/feedback.md` (every `display-dev-claude-plugin@<version>` literal)
 
 For local testing without editing the file, set `SKILL_VERSION_OVERRIDE` in your environment.
+
+The Claude marketplace entry points to `display-dev/claude-plugin`. Its version
+comes from that repository's plugin manifest; do not copy the skill package
+version into `.claude-plugin/marketplace.json`.
