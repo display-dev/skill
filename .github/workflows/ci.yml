@@ -110,7 +110,7 @@ jobs:
         run: bash tests/claude-hooks.sh
 
       - name: Candidate archive contract
-        run: node --test tests/archive-candidate.test.mjs tests/standalone.test.mjs
+        run: node --test tests/archive-candidate.test.mjs tests/standalone.test.mjs tests/release-metadata.test.mjs
 
       - name: ShellCheck
         # Pinned to v2.0.0 by full commit SHA — public-repo supply-chain
