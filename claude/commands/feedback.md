@@ -24,7 +24,7 @@ argument is optional: `$ARGUMENTS`
 Use one display.dev tool path for the whole task:
 
 1. If a shell is available and `dsp` is on PATH, use the CLI. Add
-   `--client-source display-dev-claude-plugin@0.9.0` to every `dsp` command.
+   `--client-source display-dev-claude-plugin@0.9.1` to every `dsp` command.
    Prefix every command that changes state (`publish`, `edit`, `share`,
    `comment add`, `thread resolve`) with
    `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code`, so the
@@ -39,7 +39,7 @@ Use one display.dev tool path for the whole task:
 List the user's artifacts that have open comments:
 
 ```bash
-dsp list --client-source display-dev-claude-plugin@0.9.0 --author me --sort updated_at --dir desc --limit 100 --json
+dsp list --client-source display-dev-claude-plugin@0.9.1 --author me --sort updated_at --dir desc --limit 100 --json
 ```
 
 (MCP: `list` with `author: ["me"]`, `sort: "updated_at"`, `limit: 100`.)
@@ -57,8 +57,8 @@ updated artifacts has open comments, and stop.
    before the first hyphen: `https://display.dsp.so/abc12345-q3-plan` →
    `abc12345`.
 2. Read the metadata and the open threads:
-   `dsp get-metadata --client-source display-dev-claude-plugin@0.9.0 <shortId>` and
-   `dsp comment --client-source display-dev-claude-plugin@0.9.0 list --artifact <shortId> --status open`
+   `dsp get-metadata --client-source display-dev-claude-plugin@0.9.1 <shortId>` and
+   `dsp comment --client-source display-dev-claude-plugin@0.9.1 list --artifact <shortId> --status open`
    (MCP: `get_metadata`, `list_comments`). Note the current version.
 3. Sort each open thread into one group:
    - **Change request**: a change to the artifact's content.
@@ -77,19 +77,19 @@ updated artifacts has open comments, and stop.
 5. Make the approved changes as one new version:
    - If the artifact was published from a file in this workspace and the
      user confirms that file, edit it and publish it:
-     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp publish --client-source display-dev-claude-plugin@0.9.0 <path> --id <shortId> --base-version <version>`.
+     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp publish --client-source display-dev-claude-plugin@0.9.1 <path> --id <shortId> --base-version <version>`.
    - Otherwise export the current version
-     (`dsp export --client-source display-dev-claude-plugin@0.9.0 <shortId>@<version> > <tmp file>`), edit the copy, and
+     (`dsp export --client-source display-dev-claude-plugin@0.9.1 <shortId>@<version> > <tmp file>`), edit the copy, and
      publish it the same way. With MCP, edit the content you read and call
      `publish` with `short_id` and `base_version`.
    - For one small change,
-     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp edit --client-source display-dev-claude-plugin@0.9.0 <shortId> --base-version <version> --old <text> --new <text>`
+     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp edit --client-source display-dev-claude-plugin@0.9.1 <shortId> --base-version <version> --old <text> --new <text>`
      (MCP: `edit`) is also fine.
 6. Close the threads:
    - Applied change: reply with one line, for example "Changed in v7: the
      churn figure now uses Q3 data.", then resolve the thread
-     (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp comment --client-source display-dev-claude-plugin@0.9.0 add --artifact <shortId> --parent <rootCommentId> --body <text>`,
-     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp thread --client-source display-dev-claude-plugin@0.9.0 resolve <rootCommentId>`; MCP: `add_comment`,
+     (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp comment --client-source display-dev-claude-plugin@0.9.1 add --artifact <shortId> --parent <rootCommentId> --body <text>`,
+     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp thread --client-source display-dev-claude-plugin@0.9.1 resolve <rootCommentId>`; MCP: `add_comment`,
      `resolve_thread`).
    - Question: reply with the answer and leave the thread open for the
      person who asked.
@@ -103,10 +103,10 @@ Say so, then offer:
 
 - **Ask someone to review it**: ask for the reviewer's email address, then
   share the artifact with them
-  (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp share --client-source display-dev-claude-plugin@0.9.0 <shortId> --add-users <email>`; MCP: `share`). Do not change
+  (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp share --client-source display-dev-claude-plugin@0.9.1 <shortId> --add-users <email>`; MCP: `share`). Do not change
   the artifact's visibility.
 - **Wait for comments**: available only with a shell. Poll
-  `dsp comment --client-source display-dev-claude-plugin@0.9.0 list --artifact <shortId> --status open --since <start time>`
+  `dsp comment --client-source display-dev-claude-plugin@0.9.1 list --artifact <shortId> --status open --since <start time>`
   every 60 seconds in the background. When a comment arrives, continue with
   B. Stop after the time the user gives, or after 60 minutes.
 - **Nothing for now**: stop.

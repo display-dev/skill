@@ -1,7 +1,7 @@
 {
   "name": "display-dev",
   "description": "Publish, browse, search, read, edit, and share HTML or Markdown artifacts with public, private, or company-authenticated access. Includes the Visualize skill for on-brand HTML, the display.dev MCP server, /display-dev:feedback for reviewer comments, a secret scan before publishes, and a session-start note about new comments.",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "author": {
     "name": "display.dev",
     "url": "https://display.dev"
@@ -19,7 +19,7 @@
       "type": "http",
       "url": "https://api.display.dev/v1/mcp",
       "headers": {
-        "X-Client-Source": "display-dev-claude-plugin@0.9.0"
+        "X-Client-Source": "display-dev-claude-plugin@0.9.1"
       }
     }
   }
