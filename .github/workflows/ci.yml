@@ -69,7 +69,7 @@ jobs:
 
       - name: Version equality across release metadata
         # Single source of truth is SKILL_VERSION in
-        # display-dev/scripts/_common.sh. Every manifest version field and
+        # display-dev/scripts/_common.sh. Every local manifest version field and
         # the Codex .mcp.json X-Client-Source suffix must match it, so a
         # release bump can't half-land across the hand-authored files.
         run: |
@@ -84,7 +84,6 @@ jobs:
           }
           check "$(jq -r .version .cursor-plugin/plugin.json)" .cursor-plugin/plugin.json
           check "$(jq -r .version .claude-plugin/plugin.json)" .claude-plugin/plugin.json
-          check "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)" .claude-plugin/marketplace.json
           check "$(jq -r '.mcpServers["display-dev"].headers["X-Client-Source"]' .claude-plugin/plugin.json | sed 's/.*@//')" '.claude-plugin/plugin.json (X-Client-Source)'
           check "$(grep -oE 'display-dev-claude-plugin@[0-9]+\.[0-9]+\.[0-9]+' claude/commands/feedback.md | sort -u | sed 's/.*@//')" claude/commands/feedback.md
           check "$(jq -r .version codex/display-dev/.codex-plugin/plugin.json)" codex/display-dev/.codex-plugin/plugin.json
