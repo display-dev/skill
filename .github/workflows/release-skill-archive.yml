@@ -5,7 +5,7 @@ name: Release skill archive
 # proxies:
 #   - SKILL.md (release-level standalone copy)
 #   - display-dev.tar.gz (deterministic tarball; SKILL.md at archive root)
-#   - checksums.json (sha256 + size of both assets + sourceSha + builtAt)
+#   - checksums.json (sha256 + size of both assets + sourceSha + builtAt + releaseTag)
 #
 # The website resolves https://github.com/display-dev/skill/releases/latest/download/<asset>
 # (GitHub-resolved "is the latest release" pointer) — so the release here
@@ -20,9 +20,8 @@ name: Release skill archive
 #      dated-tag download path (not /releases/latest/download/).
 #   3. Mark the dated release latest with `gh release edit --latest`.
 #      This is the published pointer the website consumes.
-#   4. Retention sweep: keep the latest 10 dated releases, delete the
-#      rest. Older releases stay reachable by tag-specific URL even
-#      after a newer release takes the latest flag — useful for forensics.
+#   4. Preserve dated releases: cached discovery indexes name their exact
+#      release, so publishing a new release must not delete older assets.
 
 on:
   push:
@@ -44,8 +43,17 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
       - name: Sanity-check skill mirrors are in sync
         run: bin/sync-mounts.sh --check
+
+      - name: Validate packaging and standalone instructions
+        run: |
+          node --test tests/archive-candidate.test.mjs tests/standalone.test.mjs tests/release-metadata.test.mjs
+          bash tests/run.sh
 
       - name: Compute identifiers
         id: ids
@@ -77,7 +85,7 @@ jobs:
               --exclude='.DS_Store' \
               -C skills/display-dev -cf - . | gzip -n > display-dev.tar.gz
 
-          cp skills/display-dev/SKILL.md SKILL.md
+          node bin/build-standalone.mjs skills/display-dev SKILL.md
 
           ARCHIVE_SHA="$(sha256sum display-dev.tar.gz | awk '{print $1}')"
           ARCHIVE_SIZE="$(stat -c %s display-dev.tar.gz)"
@@ -148,7 +156,9 @@ jobs:
             echo "non-deterministic build: $SHA1 != $SHA2"
             exit 1
           fi
-          rm -f display-dev.tar.gz.2
+          node bin/build-standalone.mjs skills/display-dev SKILL.md.2
+          cmp SKILL.md SKILL.md.2
+          rm -f display-dev.tar.gz.2 SKILL.md.2
 
       - name: Write checksums.json
         run: |
@@ -158,12 +168,13 @@ jobs:
             "skillMd":   { "sha256": "${{ steps.build.outputs.skill_md_sha }}", "size": ${{ steps.build.outputs.skill_md_size }} },
             "archive":   { "sha256": "${{ steps.build.outputs.archive_sha }}", "size": ${{ steps.build.outputs.archive_size }} },
             "sourceSha": "${{ steps.ids.outputs.source_sha }}",
+            "releaseTag": "${{ steps.ids.outputs.tag }}",
             "builtAt":   "${{ steps.ids.outputs.built_at }}"
           }
           EOF
           # Validate the file is JSON the website can parse (matches the
           # zod schema at website/src/app/.well-known/agent-skills/[...path]/route.ts).
-          python3 -c 'import json,sys; d=json.load(open("checksums.json")); assert "skillMd" in d and "archive" in d and "sourceSha" in d and "builtAt" in d'
+          python3 -c 'import json,sys; d=json.load(open("checksums.json")); assert "skillMd" in d and "archive" in d and "sourceSha" in d and "builtAt" in d and "releaseTag" in d'
 
       - name: Create dated release (not latest yet)
         env:
@@ -230,38 +241,3 @@ jobs:
           # flag GitHub uses to resolve /releases/latest/download/. The
           # website's route handler reads via that path.
           gh release edit "${{ steps.ids.outputs.tag }}" --latest
-
-      - name: Retention sweep (keep newest 10 dated releases)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          # gh release list orders newest-first by default. The jq filter
-          # matches exactly this workflow's tag shape:
-          # release-<40-hex-sha>-<unix>. Anything else (release-notes,
-          # release-candidate, a human-created tag, …) is untouched.
-          # Drop the first 10 from the matched list, delete the rest.
-          PATTERN='^release-[0-9a-f]{40}-[0-9]+$'
-          TO_DELETE=$(gh release list --limit 100 --json tagName \
-                       --jq "[.[] | select(.tagName | test(\"${PATTERN}\")) | .tagName] | .[10:][]")
-          if [ -z "${TO_DELETE}" ]; then
-            echo "retention sweep: nothing to prune"
-            exit 0
-          fi
-          # Try every delete, collect failures, surface non-zero exit
-          # at the end so the workflow reflects reality. Don't `|| true`
-          # — a silent failure here means the sweep doesn't actually
-          # shrink the release list and the next run repeats the same
-          # work.
-          failed=()
-          while IFS= read -r tag; do
-            [ -z "$tag" ] && continue
-            echo "pruning $tag"
-            if ! gh release delete "$tag" --yes --cleanup-tag; then
-              failed+=("$tag")
-            fi
-          done <<< "${TO_DELETE}"
-          if [ "${#failed[@]}" -gt 0 ]; then
-            echo "retention sweep failed for: ${failed[*]}"
-            exit 1
-          fi

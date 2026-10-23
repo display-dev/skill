@@ -17,37 +17,12 @@ npx skills add display-dev/skill --skill display-dev
 /plugin install display-dev@display-dev
 ```
 
-Then run `/mcp` and complete OAuth for `plugin:display-dev:display-dev`. The
-Claude Code plugin contains:
+Then run `/mcp` and complete OAuth for `plugin:display-dev:display-dev`.
 
-- the display.dev skill;
-- the [Visualize](https://github.com/display-dev/visualize) skill for on-brand
-  HTML reports, plans, and decks (a pinned release, see `claude/visualize.lock`);
-- the remote MCP server (`https://api.display.dev/v1/mcp`);
-- `/display-dev:feedback`: lists your artifacts with open comments, shows a
-  plan for each thread, and after you approve it, edits the artifact, replies,
-  and resolves the threads;
-- a hook that scans a publish for secrets (API keys, tokens, private keys). It
-  blocks a public publish and asks before any other publish;
-- a hook that tells you at session start which of your artifacts have new
-  comments. It reads only the open-thread counts, not the comment text.
-
-The hooks need the `dsp` CLI for the comment note and run in Claude Code and
-in Cowork on your own computer. Claude.ai loads the skills and the command but
-not the hooks. There, connect the display.dev connector for the tools. If you
-also turned on the display.dev connector in Claude Code, the agent sees two
-sets of display.dev tools and uses one of them.
-
-#### What the Claude Code plugin runs and sends
-
-| Part | Runs | Sends or fetches | Stores |
-|---|---|---|---|
-| display.dev skill | The bundled helper scripts, the installed `dsp` CLI, and a bundled `jq` binary for JSON | Requests to `api.display.dev` for the actions you ask for. An anonymous publish sends the file to `https://api.display.dev/v1/public/artifacts`. | Nothing. `dsp` keeps its own sign-in. |
-| MCP server | Nothing on your machine | Tool calls to `https://api.display.dev/v1/mcp` after you sign in with OAuth, with the header `X-Client-Source: display-dev-claude-plugin@<version>` | Nothing |
-| Publish guard hook | `claude/hooks/publish-guard.sh` before each Bash command and each display.dev `publish` tool call | Nothing. It reads only the files named in a publish command, or the `content` of an MCP publish, and checks them for secrets on your machine. | Nothing |
-| Comment note hook | `claude/hooks/comment-digest.sh` at session start, only when `dsp` is installed | One request through `dsp` to `api.display.dev`: your 100 most recently updated artifacts with their names and open-thread counts. It never fetches comment text. | The open-thread count and name of each of your artifacts with open threads, in Claude Code's plugin data folder (`open-thread-counts.json`) |
-| `/display-dev:feedback` | `dsp` commands or MCP tool calls | Reads the metadata, open comments, and source of the artifact you choose. After you approve the plan, publishes the new version and posts replies and resolves to `api.display.dev`. | A temporary copy of the artifact source while it edits |
-| Visualize skill | Local scripts for brand capture, checks, and rendering. Mermaid diagrams run `@mermaid-js/mermaid-cli@11.12.0` through `npx`. | Nothing by default. Only when you explicitly choose OpenAI or Google for image generation, it reads `OPENAI_API_KEY` or `GEMINI_API_KEY` from your environment and sends the image brief and any reference images to `api.openai.com` or `generativelanguage.googleapis.com`. Publishing goes through display.dev. | The HTML files it writes in your project |
+The marketplace installs the Display plugin from
+[`display-dev/claude-plugin`](https://github.com/display-dev/claude-plugin).
+Its [README](https://github.com/display-dev/claude-plugin#readme) documents the
+bundled skills, MCP server, hooks, commands, and what they run, fetch, and store.
 
 ### Codex – plugin (skill + bundled MCP server)
 

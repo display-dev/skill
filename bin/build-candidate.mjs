@@ -89,7 +89,7 @@ async function collectDirectory(sourceRoot, directory) {
   for (const basename of names) {
     if (basename === '.DS_Store') continue;
     const name = `${directory}/${basename}`;
-    if (!/^(scripts|bin)\/[^/]+$/.test(name)) fail(`invalid candidate path: ${name}`);
+    if (!/^(scripts|bin|references)\/[^/]+$/.test(name)) fail(`invalid candidate path: ${name}`);
     const absoluteFile = path.join(absolute, basename);
     const stat = await lstat(absoluteFile);
     if (!stat.isFile() || stat.isSymbolicLink()) fail(`candidate entry must be a regular file: ${name}`);
@@ -113,7 +113,11 @@ export async function buildCandidate(sourcePath, outputPath) {
     { name: 'SKILL.md', mode: 0o644, bytes: await readFile(skillPath) },
     ...(await collectDirectory(sourceRoot, 'scripts')),
     ...(await collectDirectory(sourceRoot, 'bin')),
-  ].sort((left, right) => Buffer.compare(Buffer.from(left.name), Buffer.from(right.name)));
+  ];
+  if ((await readdir(sourceRoot)).includes('references')) {
+    entries.push(...await collectDirectory(sourceRoot, 'references'));
+  }
+  entries.sort((left, right) => Buffer.compare(Buffer.from(left.name), Buffer.from(right.name)));
 
   const unpackedSize = entries.reduce((sum, entry) => sum + entry.bytes.length, 0);
   if (unpackedSize > MAX_UNPACKED_BYTES) fail(`candidate exceeds ${MAX_UNPACKED_BYTES} unpacked bytes`);

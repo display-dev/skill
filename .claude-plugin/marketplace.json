@@ -9,10 +9,9 @@
       "name": "display-dev",
       "source": {
         "source": "github",
-        "repo": "display-dev/skill"
+        "repo": "display-dev/claude-plugin"
       },
       "description": "Publish, browse, search, read, edit, and share HTML or Markdown artifacts with public, private, or company-authenticated access. Includes Visualize, the display.dev MCP server, and /display-dev:feedback for reviewer comments.",
-      "version": "0.9.1",
       "author": {
         "name": "display.dev",
         "url": "https://display.dev"

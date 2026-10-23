@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmod, cp, mkdtemp, mkdir, readFile, readdir, symlink, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -38,14 +38,14 @@ function parseTar(bytes) {
 
 async function expectedEntries(root) {
   const names = ['SKILL.md'];
-  for (const directory of ['scripts', 'bin']) {
+  for (const directory of ['scripts', 'bin', 'references']) {
     for (const basename of (await readdir(path.join(root, directory))).sort()) {
       if (basename !== '.DS_Store') names.push(`${directory}/${basename}`);
     }
   }
   return Promise.all(names.sort().map(async (name) => {
     const filePath = path.join(root, name);
-    const mode = name === 'SKILL.md' || name.endsWith('.LICENSE') ? 0o644 : 0o755;
+    const mode = name === 'SKILL.md' || name.endsWith('.LICENSE') || name.startsWith('references/') ? 0o644 : 0o755;
     return { name, mode, bytes: await readFile(filePath) };
   }));
 }
@@ -64,13 +64,37 @@ test('builds a deterministic complete archive with exact bytes, modes, and diges
   assert.deepEqual(parsed.map(({ name, mode, type }) => ({ name, mode, type })), expected.map(({ name, mode }) => ({ name, mode, type: '0' })));
   for (const entry of parsed) {
     assert.deepEqual(entry.bytes, expected.find(({ name }) => name === entry.name).bytes);
-    assert.match(entry.name, /^(SKILL\.md|scripts\/[^/]+|bin\/[^/]+)$/);
+    assert.match(entry.name, /^(SKILL\.md|scripts\/[^/]+|bin\/[^/]+|references\/[^/]+)$/);
   }
   assert.ok(parsed.reduce((sum, entry) => sum + entry.bytes.length, 0) <= 10 * 1024 * 1024);
 
   const digest = JSON.parse(await readFile(path.join(first, 'candidate-digest.json'), 'utf8'));
   assert.equal(digest.archive.size, one.archive.length);
   assert.equal(digest.archive.sha256, createHash('sha256').update(one.archive).digest('hex'));
+});
+
+test('still builds a skill without references', async (t) => {
+  const temp = await mkdtemp(path.join(os.tmpdir(), 'display-dev-candidate-legacy-'));
+  t.after(() => rm(temp, { recursive: true, force: true }));
+  const source = path.join(temp, 'source');
+  await cp(canonicalRoot, source, { recursive: true });
+  await rm(path.join(source, 'references'), { recursive: true });
+  await writeFile(path.join(source, 'SKILL.md'), '---\nname: display-dev\ndescription: Publish artifacts.\n---\n\nUse the packaged helpers.\n');
+  const result = await buildCandidate(source, path.join(temp, 'output'));
+  assert.ok(parseTar(gunzipSync(result.archive)).some(({ name }) => name === 'SKILL.md'));
+  assert.ok(result.entries.every(({ name }) => !name.startsWith('references/')));
+});
+
+test('rejects linked or nested references', async (t) => {
+  const temp = await mkdtemp(path.join(os.tmpdir(), 'display-dev-candidate-references-'));
+  t.after(() => rm(temp, { recursive: true, force: true }));
+  const source = path.join(temp, 'source');
+  await cp(canonicalRoot, source, { recursive: true });
+  await symlink('email-domains.md', path.join(source, 'references', 'linked.md'));
+  await assert.rejects(buildCandidate(source, path.join(temp, 'linked')), /regular file/);
+  await rm(path.join(source, 'references', 'linked.md'));
+  await mkdir(path.join(source, 'references', 'nested'));
+  await assert.rejects(buildCandidate(source, path.join(temp, 'nested')), /regular file/);
 });
 
 test('rejects links and nested entries instead of archiving unsafe entry types or paths', async () => {
