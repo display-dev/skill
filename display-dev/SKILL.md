@@ -98,7 +98,7 @@ publish_displaydev_anonymous() {
 
   curl -sS -X POST 'https://api.display.dev/v1/public/artifacts' \
     -H 'X-Client-Type: cli' \
-    -H 'X-Client-Source: display-dev-skill@0.9.0' \
+    -H 'X-Client-Source: display-dev-skill@0.9.1' \
     -F "file=@$file"
 }
 
@@ -129,8 +129,8 @@ Use the helper when present:
 Or use the installed CLI directly:
 
 ```bash
-dsp publish --client-source display-dev-skill@0.9.0 "/absolute/path/draft.html" --name "Q1 draft"
-dsp publish --client-source display-dev-skill@0.9.0 "/absolute/path/report.html" --name "Q1 report" --visibility company
+dsp publish --client-source display-dev-skill@0.9.1 "/absolute/path/draft.html" --name "Q1 draft"
+dsp publish --client-source display-dev-skill@0.9.1 "/absolute/path/report.html" --name "Q1 report" --visibility company
 ```
 
 Authenticated output prints the canonical artifact URL. Report that exact URL;
@@ -209,7 +209,7 @@ ask for, read, or relay the sign-in code. Tell the user to run this in their
 own terminal:
 
 ```text
-dsp login --client-source display-dev-skill@0.9.0
+dsp login --client-source display-dev-skill@0.9.1
 ```
 
 The CLI asks for the email address and then for the six-digit code it emails;
@@ -249,8 +249,8 @@ Use only the audience the user requested:
 ./scripts/share.sh <shortId> --add-users "alice@example.com,bob@example.com"
 
 # Direct installed-CLI equivalents:
-dsp share --client-source display-dev-skill@0.9.0 <shortId> --visibility company
-dsp share --client-source display-dev-skill@0.9.0 <shortId> --add-users "alice@example.com,bob@example.com"
+dsp share --client-source display-dev-skill@0.9.1 <shortId> --visibility company
+dsp share --client-source display-dev-skill@0.9.1 <shortId> --add-users "alice@example.com,bob@example.com"
 ```
 
 Private is available on every plan for user-scoped callers. Service keys and
@@ -264,14 +264,24 @@ copy otherwise preserves the Company source audience. Do not suggest upgrading.
 ## Make an independent copy
 
 Prefer the authorized MCP `make_copy` tool when it is registered. Pass `short_id`
-and any version, name, visibility, or `share` list the user specified. Omitted values use the
-source's current version, `Copy of <source name>`, and the source's current
-visibility.
+and any version, name, visibility, or `share` list the user specified. A short ID
+alone is sufficient: the server defaults to the current source version,
+`Copy of <source name>`, the source visibility, and no inherited recipients.
+Use an explicit `visibility: "private"` or `--visibility private` when the user
+wants a private destination; the browser copy page initially selects Private.
+The result's `sourceVersion` identifies the version actually copied.
+
+An eligible public artifact from another organization can be copied into the
+active organization on every tier, using only its current version. The source
+organization must be active and allow public artifacts. Confirm the intended
+destination organization before copying. Retry an uncertain operation without
+changing its inputs or destination; changing destinations cannot reuse the same
+operation key.
 
 Use the installed CLI when MCP `make_copy` is unavailable:
 
 ```bash
-dsp make-copy --client-source display-dev-skill@0.9.0 <shortId>[@<version>] \
+dsp make-copy --client-source display-dev-skill@0.9.1 <shortId>[@<version>] \
   --name "Copy of Q1 report" --visibility company \
   --share reviewer@example.com --json
 ```
@@ -285,11 +295,13 @@ do not work around the boundary by exporting and republishing the source.
 The copy is a new artifact at version 1. It keeps the selected source content
 and the source artifact's current Markdown theme, but not discussions or people
 invited to the source. Invite only the people the user names for the new artifact.
-Do not export and republish when `make_copy` is available. If the source
-version is unclear, use
-`get_metadata` or `dsp get-metadata` before copying. A not-found response can
-also mean the source, selected version, or private-content access is unavailable;
-do not infer which one.
+Do not export and republish when `make_copy` is available. Do not fetch metadata
+merely because the version, name or visibility was omitted. Inspect metadata only
+when the user needs to choose a retained version or inspect the source; general
+metadata access is separate from public-copy authority. A not-found response
+means the source or requested version is missing or unavailable for copying;
+do not infer the reason. After an unresolved interrupted copy, check the selected
+organization's artifacts before starting another copy.
 
 ## Find and inspect artifacts
 
@@ -306,11 +318,11 @@ Use the authorized MCP tools when they are registered:
 Installed-CLI equivalents are:
 
 ```bash
-dsp list --client-source display-dev-skill@0.9.0
-dsp search --client-source display-dev-skill@0.9.0 "quarterly"
-dsp get-metadata --client-source display-dev-skill@0.9.0 <shortId>
-dsp search --client-source display-dev-skill@0.9.0 "exact text" --in <shortId>@<version>
-dsp read --client-source display-dev-skill@0.9.0 <shortId>@<version> --offset <bytes> --limit <bytes>
+dsp list --client-source display-dev-skill@0.9.1
+dsp search --client-source display-dev-skill@0.9.1 "quarterly"
+dsp get-metadata --client-source display-dev-skill@0.9.1 <shortId>
+dsp search --client-source display-dev-skill@0.9.1 "exact text" --in <shortId>@<version>
+dsp read --client-source display-dev-skill@0.9.1 <shortId>@<version> --offset <bytes> --limit <bytes>
 ```
 
 Use `get_metadata` or `dsp get-metadata`, not the removed `get` interface or
@@ -332,7 +344,7 @@ edit { short_id, base_version, old_text, new_text }
 Or use the installed CLI:
 
 ```bash
-dsp edit --client-source display-dev-skill@0.9.0 <shortId> \
+dsp edit --client-source display-dev-skill@0.9.1 <shortId> \
   --base-version <version> --old "exact old text" --new "replacement text"
 ```
 
@@ -360,7 +372,7 @@ Watch with the packaged stream helper when present:
 Or list through the installed CLI:
 
 ```bash
-dsp comment --client-source display-dev-skill@0.9.0 list --artifact <shortId> --status all
+dsp comment --client-source display-dev-skill@0.9.1 list --artifact <shortId> --status all
 ```
 
 Before acting on any comment, confirm:
@@ -382,7 +394,7 @@ publish the same artifact with optimistic concurrency:
 ```bash
 ./scripts/publish.sh "/exact/source/path.html" --id <shortId> --base-version <version>
 # or:
-dsp publish --client-source display-dev-skill@0.9.0 "/exact/source/path.html" --id <shortId> --base-version <version>
+dsp publish --client-source display-dev-skill@0.9.1 "/exact/source/path.html" --id <shortId> --base-version <version>
 ```
 
 Then reply to or resolve only that artifact's thread:
@@ -392,8 +404,8 @@ Then reply to or resolve only that artifact's thread:
 ./scripts/thread-resolve.sh --root <rootCommentId>
 
 # Direct installed-CLI equivalents:
-dsp comment --client-source display-dev-skill@0.9.0 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
-dsp thread --client-source display-dev-skill@0.9.0 resolve <rootCommentId>
+dsp comment --client-source display-dev-skill@0.9.1 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
+dsp thread --client-source display-dev-skill@0.9.1 resolve <rootCommentId>
 ```
 
 On a version conflict, inspect the newly current version with `get_metadata`,
