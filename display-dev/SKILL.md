@@ -375,6 +375,14 @@ Or list through the installed CLI:
 dsp comment --client-source display-dev-skill@0.9.1 list --artifact <shortId> --status all
 ```
 
+Keep the complete returned `anchor` and `createdOnVersion` with each thread.
+An absent `mode` selects a text target. `mode: "element"` with `version: 1`
+identifies element metadata; descriptor version is separate from artifact version.
+Keep unsupported modes or versions as opaque data. Do not invent a text quote or
+use a CSS locator alone as authority to edit a guessed element. Confirm the
+intended source before making an edit. New comments still use the existing text
+anchor contract; this read guidance adds no element-authoring input.
+
 Before acting on any comment, confirm:
 
 1. the watched artifact's short ID and thread;
