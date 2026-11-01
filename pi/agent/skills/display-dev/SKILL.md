@@ -363,7 +363,12 @@ Or list through the installed CLI:
 dsp comment --client-source display-dev-skill@0.9.0 list --artifact <shortId> --status all
 ```
 
-Keep the complete returned `anchor` and `createdOnVersion` with each thread.
+Keep the complete returned `anchor`, `styleChanges` and `createdOnVersion`
+with each thread. If a deployed reader returns style metadata, retain it as
+opaque advisory data; it is not a command to apply CSS or edit artifact source.
+Missing fields in older responses mean no recorded style request. Deleted
+comments expose no style content. This guidance prepares compatible reads only;
+it adds no style input or claim that the held CLI release contains these readers.
 An absent `mode` selects a text target. `mode: "element"` with `version: 1`
 identifies element metadata; descriptor version is separate from artifact version.
 Keep unsupported modes or versions as opaque data. Do not invent a text quote or
