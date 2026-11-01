@@ -31,6 +31,8 @@ Use `get_file` for metadata, `read_file` for bounded UTF-8 source, and `search_f
 
 For one unique literal replacement, use `edit_file` with the exact old and new text, the explicit `base_revision`, and `idempotency_key`. CLI uses `dsp file edit <fileId> --base-revision <revisionId> --idempotency-key <requestKey> --old <text> --new <text>`. For a complete replacement, use `update_file` with the same explicit precondition and a supported source. Read the source first; never substitute a newer base automatically.
 
+Native receipts are retained for 24 hours. After that window, the original key can execute as a new operation. Refresh current state and reconcile an older uncertain outcome before retrying. A retained key alone does not prevent duplicates indefinitely.
+
 A stale base requires reading the current revision and reconciling the user's intended change. An uncertain result requires preserving the original key, source bytes, base revision, and exact inputs. Reconcile whether that operation succeeded before starting a new one. Do not retry a denial or a native failure as legacy publishing.
 
 `export_file` returns an authorized download descriptor. Hosted MCP does not write a path on the user's computer. Local MCP can write an explicit `output_path`; CLI uses `dsp file export <fileId> --output <path>`. Ask before overwriting local work; use the explicit overwrite option only for that approved path. Transfer exact private or binary bytes through the supplied download owner. Do not publish them to obtain a download link. Keep temporary upload/download credentials out of final replies, shared logs, generated files, and unrelated calls.
