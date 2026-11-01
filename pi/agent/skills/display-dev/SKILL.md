@@ -41,7 +41,10 @@ Claude connector and a plugin-bundled server, use one of them for the whole task
   code-execution trace may contain both while performing the transfer. Do not
   repeat the bearer or source in final/shared output, a generated artifact, a
   durable file, or an unrelated tool call. Use the bearer only in the exact
-  upload request and matching `publish` call, then discard it.
+  upload request and the exact matching finalization: legacy `publish`, or native
+  `create_file`/`update_file` when the issued ticket admits that action. Preserve
+  its intended target, base revision, source bytes, and request identity. Never
+  reuse the bearer for another target or action; discard it after reconciliation.
 
 ## Requirements and current documentation
 
