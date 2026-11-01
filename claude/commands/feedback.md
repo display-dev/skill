@@ -110,3 +110,7 @@ Say so, then offer:
   every 60 seconds in the background. When a comment arrives, continue with
   B. Stop after the time the user gives, or after 60 minutes.
 - **Nothing for now**: stop.
+
+## Spaces targets
+
+Before applying this command to a native file, load the bundled Display skill’s Spaces reference when present and inspect the current native tool schemas. Preserve native file IDs, opaque revisions, typed authorship, and the original operation key. If native discussion or editing support is missing, explain that limitation. Do not pass a native ID to the numbered artifact workflow or switch credentials after a denial.
