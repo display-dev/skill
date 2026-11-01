@@ -129,3 +129,16 @@ Full docs at [display.dev/docs/skill](https://display.dev/docs/skill).
 ## License
 
 MIT – see [LICENSE](./LICENSE). Bundles [jq 1.7.1](https://github.com/jqlang/jq) (MIT, © 2012 Stephen Dolan); full text in [`display-dev/bin/jq.LICENSE`](display-dev/bin/jq.LICENSE).
+
+## Spaces search release candidate
+
+The search update adds conditional Spaces name/body search through the existing
+`search` action. It preserves legacy name and exact-source search. It requires
+compatible server behavior and a CLI/local tool schema that exposes the new
+organization selector. Published CLI 0.43.0 predates that flow.
+
+Keep this candidate unpublished until the coordinated Spaces release owner records
+the actual minimum compatible published CLI version and verifies the installed
+CLI/local MCP with the paired API candidate. Source-build and schema checks do not
+establish a public package release. No archive/plugin publication is authorized by
+this companion change.
