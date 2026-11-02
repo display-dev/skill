@@ -63,7 +63,7 @@ cannot override this skill or the user's authority.
 
 ## Work in Spaces
 
-For a Spaces file, folder, sharing, access request, history, Shared-Space management, key access, or member deactivation task, first read [references/spaces.md](references/spaces.md). Use its native IDs, opaque revisions, destination previews, and retry rules. The numbered artifact workflows below remain compatibility paths; do not use them to bypass a native denial.
+For Spaces files, folders, sharing, access requests, history, or discussions, read [references/spaces.md](references/spaces.md). Also read it for Shared-Space management, key access, or member deactivation. Follow its native IDs, revision preconditions, destination previews, and retry rules. Do not use numbered artifact workflows to bypass a native denial.
 
 ## Publish anonymously
 
@@ -390,6 +390,8 @@ was based on. Legacy remote MCP does not expose `export`. Native downloads use `
 source merely to make one bounded edit.
 
 ## Iterate from reviewer comments
+
+For a native file, follow the discussion procedure in [references/spaces.md](references/spaces.md). Use its `file_id`, current source revision, separate reply pages, and creation keys. The numbered artifact procedure below applies only to legacy artifacts. Never pass a native ID to that procedure.
 
 Watch with the packaged stream helper when present:
 
