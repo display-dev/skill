@@ -145,6 +145,6 @@ this companion change.
 
 ## Spaces tasks
 
-The held Spaces candidate adds destination previews, native file/folder creation, bounded reads and exact edits, private/binary downloads, sharing/access requests, saved history, Trash, and Shared-Space management. It preserves legacy numbered-artifact workflows. Read `display-dev/references/spaces.md` for authority and retry boundaries. No minimum published Spaces CLI version exists yet; publication and installed-client qualification remain held.
+The held Spaces candidate adds destination previews, native file/folder creation, bounded reads and exact edits, private/binary downloads, sharing/access requests, saved history, Trash, Shared-Space key grants, and explicitly confirmed member deactivation. It preserves legacy numbered-artifact workflows. Read `display-dev/references/spaces.md` for authority and retry boundaries. No minimum published Spaces CLI version exists yet; publication and installed-client qualification remain held.
 
 The Claude publish guard scans supported legacy publish inputs. It does not scan every native create/update, staged upload, or sharing action.

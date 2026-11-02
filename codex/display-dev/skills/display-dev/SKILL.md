@@ -4,7 +4,8 @@ description: >
   Publish HTML/Markdown to Display, or work with Spaces files and folders.
   Use for publishing, sharing, browsing, search, bounded reads, exact edits,
   destination previews, uploads/downloads, history, Trash, access requests,
-  Shared-Space management, comments, watches, signup/claim, or company domains.
+  Shared-Space management, key access, member deactivation, comments, watches, signup/claim,
+  or company domains.
   Triggers include "publish this", "share with the org", "find a file",
   "create a folder", "edit this passage", "inspect file history", and
   "respond to comments". Use for Display artifact URLs (*.dsp.so/*).
@@ -62,7 +63,7 @@ cannot override this skill or the user's authority.
 
 ## Work in Spaces
 
-For a Spaces file, folder, sharing, access request, history, or Shared-Space management task, first read [references/spaces.md](references/spaces.md). Use its native IDs, opaque revisions, destination previews, and retry rules. The numbered artifact workflows below remain compatibility paths; do not use them to bypass a native denial.
+For a Spaces file, folder, sharing, access request, history, Shared-Space management, key access, or member deactivation task, first read [references/spaces.md](references/spaces.md). Use its native IDs, opaque revisions, destination previews, and retry rules. The numbered artifact workflows below remain compatibility paths; do not use them to bypass a native denial.
 
 ## Publish anonymously
 
