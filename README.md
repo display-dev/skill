@@ -129,3 +129,11 @@ Full docs at [display.dev/docs/skill](https://display.dev/docs/skill).
 ## License
 
 MIT – see [LICENSE](./LICENSE). Bundles [jq 1.7.1](https://github.com/jqlang/jq) (MIT, © 2012 Stephen Dolan); full text in [`display-dev/bin/jq.LICENSE`](display-dev/bin/jq.LICENSE).
+
+## Spaces tasks
+
+For organizations that use Spaces, the skill covers destination previews, file and folder creation, bounded reads and exact edits, downloads, sharing, history, Trash, groups, key access, member deactivation and discussions. Legacy organizations retain their numbered-artifact workflows.
+
+Use CLI 0.44.0 or later for the local workflow. Read `display-dev/references/spaces.md` for current access, credential limits and retry rules. The skill never installs or updates the CLI without approval.
+
+The Claude publish guard scans supported legacy publish inputs. It does not scan every native create/update, staged upload or sharing action.

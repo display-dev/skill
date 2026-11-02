@@ -1,5 +1,5 @@
 {
-  "description": "display.dev: secret scan before a publish, and a note about new comments at session start.",
+  "description": "display.dev: secret scan for supported legacy publishes, and a note about new comments at session start.",
   "hooks": {
     "PreToolUse": [
       {
