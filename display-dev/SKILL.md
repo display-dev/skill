@@ -100,7 +100,7 @@ publish_displaydev_anonymous() {
 
   curl -sS -X POST 'https://api.display.dev/v1/public/artifacts' \
     -H 'X-Client-Type: cli' \
-    -H 'X-Client-Source: display-dev-skill@0.9.1' \
+    -H 'X-Client-Source: display-dev-skill@0.10.0' \
     -F "file=@$file"
 }
 
@@ -131,8 +131,8 @@ Use the helper when present:
 Or use the installed CLI directly:
 
 ```bash
-dsp publish --client-source display-dev-skill@0.9.1 "/absolute/path/draft.html" --name "Q1 draft"
-dsp publish --client-source display-dev-skill@0.9.1 "/absolute/path/report.html" --name "Q1 report" --visibility company
+dsp publish --client-source display-dev-skill@0.10.0 "/absolute/path/draft.html" --name "Q1 draft"
+dsp publish --client-source display-dev-skill@0.10.0 "/absolute/path/report.html" --name "Q1 report" --visibility company
 ```
 
 Authenticated output prints the canonical artifact URL. Report that exact URL;
@@ -211,7 +211,7 @@ ask for, read, or relay the sign-in code. Tell the user to run this in their
 own terminal:
 
 ```text
-dsp login --client-source display-dev-skill@0.9.1
+dsp login --client-source display-dev-skill@0.10.0
 ```
 
 The CLI asks for the email address and then for the six-digit code it emails;
@@ -251,8 +251,8 @@ Use only the audience the user requested:
 ./scripts/share.sh <shortId> --add-users "alice@example.com,bob@example.com"
 
 # Direct installed-CLI equivalents:
-dsp share --client-source display-dev-skill@0.9.1 <shortId> --visibility company
-dsp share --client-source display-dev-skill@0.9.1 <shortId> --add-users "alice@example.com,bob@example.com"
+dsp share --client-source display-dev-skill@0.10.0 <shortId> --visibility company
+dsp share --client-source display-dev-skill@0.10.0 <shortId> --add-users "alice@example.com,bob@example.com"
 ```
 
 Private is available on every plan for user-scoped callers. Service keys and
@@ -283,7 +283,7 @@ operation key.
 Use the installed CLI when MCP `make_copy` is unavailable:
 
 ```bash
-dsp make-copy --client-source display-dev-skill@0.9.1 <shortId>[@<version>] \
+dsp make-copy --client-source display-dev-skill@0.10.0 <shortId>[@<version>] \
   --name "Copy of Q1 report" --visibility company \
   --share reviewer@example.com --json
 ```
@@ -313,8 +313,7 @@ to its authenticated organization. An organization ID never widens a key's scope
 Search requires current access and eligible named Shared-Space grants for service
 keys; the key does not inherit its creator's access.
 
-CLI/local MCP 0.43.0 predates this flow. Require the coordinated Spaces CLI
-release or a separately reviewed compatible source build. Check `dsp search --help`
+CLI/local MCP search requires CLI 0.44.0 or later. Check `dsp search --help`
 for `--organization-id` and check local `search` discovery for `organization_id`.
 Older local schemas can silently drop that input. If it is missing, use a hosted
 connection that advertises it or report the required client update. Do not send
@@ -348,11 +347,11 @@ Use the authorized MCP tools when they are registered:
 Installed-CLI equivalents are:
 
 ```bash
-dsp list --client-source display-dev-skill@0.9.1
-dsp search --client-source display-dev-skill@0.9.1 "quarterly"
-dsp get-metadata --client-source display-dev-skill@0.9.1 <shortId>
-dsp search --client-source display-dev-skill@0.9.1 "exact text" --in <shortId>@<version>
-dsp read --client-source display-dev-skill@0.9.1 <shortId>@<version> --offset <bytes> --limit <bytes>
+dsp list --client-source display-dev-skill@0.10.0
+dsp search --client-source display-dev-skill@0.10.0 "quarterly"
+dsp get-metadata --client-source display-dev-skill@0.10.0 <shortId>
+dsp search --client-source display-dev-skill@0.10.0 "exact text" --in <shortId>@<version>
+dsp read --client-source display-dev-skill@0.10.0 <shortId>@<version> --offset <bytes> --limit <bytes>
 ```
 
 Use `get_metadata` or `dsp get-metadata`, not the removed `get` interface or
@@ -375,7 +374,7 @@ edit { short_id, base_version, old_text, new_text }
 Or use the installed CLI:
 
 ```bash
-dsp edit --client-source display-dev-skill@0.9.1 <shortId> \
+dsp edit --client-source display-dev-skill@0.10.0 <shortId> \
   --base-version <version> --old "exact old text" --new "replacement text"
 ```
 
@@ -405,7 +404,7 @@ Watch with the packaged stream helper when present:
 Or list through the installed CLI:
 
 ```bash
-dsp comment --client-source display-dev-skill@0.9.1 list --artifact <shortId> --status all
+dsp comment --client-source display-dev-skill@0.10.0 list --artifact <shortId> --status all
 ```
 
 Keep the complete returned `anchor` and `createdOnVersion` with each thread.
@@ -435,7 +434,7 @@ publish the same artifact with optimistic concurrency:
 ```bash
 ./scripts/publish.sh "/exact/source/path.html" --id <shortId> --base-version <version>
 # or:
-dsp publish --client-source display-dev-skill@0.9.1 "/exact/source/path.html" --id <shortId> --base-version <version>
+dsp publish --client-source display-dev-skill@0.10.0 "/exact/source/path.html" --id <shortId> --base-version <version>
 ```
 
 Then reply to or resolve only that artifact's thread:
@@ -445,8 +444,8 @@ Then reply to or resolve only that artifact's thread:
 ./scripts/thread-resolve.sh --root <rootCommentId>
 
 # Direct installed-CLI equivalents:
-dsp comment --client-source display-dev-skill@0.9.1 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
-dsp thread --client-source display-dev-skill@0.9.1 resolve <rootCommentId>
+dsp comment --client-source display-dev-skill@0.10.0 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
+dsp thread --client-source display-dev-skill@0.10.0 resolve <rootCommentId>
 ```
 
 On a version conflict, inspect the newly current version with `get_metadata`,

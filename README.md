@@ -130,21 +130,10 @@ Full docs at [display.dev/docs/skill](https://display.dev/docs/skill).
 
 MIT – see [LICENSE](./LICENSE). Bundles [jq 1.7.1](https://github.com/jqlang/jq) (MIT, © 2012 Stephen Dolan); full text in [`display-dev/bin/jq.LICENSE`](display-dev/bin/jq.LICENSE).
 
-## Spaces search release candidate
-
-The search update adds conditional Spaces name/body search through the existing
-`search` action. It preserves legacy name and exact-source search. It requires
-compatible server behavior and a CLI/local tool schema that exposes the new
-organization selector. Published CLI 0.43.0 predates that flow.
-
-Keep this candidate unpublished until the coordinated Spaces release owner records
-the actual minimum compatible published CLI version and verifies the installed
-CLI/local MCP with the paired API candidate. Source-build and schema checks do not
-establish a public package release. No archive/plugin publication is authorized by
-this companion change.
-
 ## Spaces tasks
 
-The held Spaces candidate adds destination previews, native file/folder creation, bounded reads and exact edits, private/binary downloads, sharing/access requests, saved history, Trash, Shared-Space key grants, and explicitly confirmed member deactivation, and native paged discussions with personal watches. It preserves legacy numbered-artifact workflows. Read `display-dev/references/spaces.md` for authority and retry boundaries. No minimum published Spaces CLI version exists yet; publication and installed-client qualification remain held.
+For organizations that use Spaces, the skill covers destination previews, file and folder creation, bounded reads and exact edits, downloads, sharing, history, Trash, groups, key access, member deactivation and discussions. Legacy organizations retain their numbered-artifact workflows.
 
-The Claude publish guard scans supported legacy publish inputs. It does not scan every native create/update, staged upload, or sharing action.
+Use CLI 0.44.0 or later for the local workflow. Read `display-dev/references/spaces.md` for current access, credential limits and retry rules. The skill never installs or updates the CLI without approval.
+
+The Claude publish guard scans supported legacy publish inputs. It does not scan every native create/update, staged upload or sharing action.

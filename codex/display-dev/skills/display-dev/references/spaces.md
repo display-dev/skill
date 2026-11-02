@@ -4,9 +4,11 @@ Use this reference for Space, folder, native file, revision, history, discussion
 
 ## Discover the available path
 
-Prefer one authorized MCP connection for the whole task. Check its registered tools and exact schemas. Use the installed CLI only when it supports the required command. Run `dsp --version` and the relevant offline `--help`; the published 0.43.0 package predates the Spaces command set. A source build labeled 0.43.0 is not evidence of a published release. Do not silently install or update software, change host configuration, or use a runtime package runner.
+Prefer one authorized MCP connection for the whole task. Check its registered tools and exact schemas. Use the installed CLI only when it supports the required command. Run `dsp --version` and the relevant offline `--help`; Spaces commands require CLI 0.44.0 or later. Do not silently install or update software, change host configuration, or use a runtime package runner.
 
-A default personal key follows its owner's current Space access. Existing scoped personal keys cannot access Spaces, including search. The owner must review any broader access before replacing one. Direct them to personal API key settings to create a default replacement, test it, then disable or delete the old key. Do not create a replacement, read credential stores, request a token in chat, or switch identities after a denial. OAuth retains its approved scope ceilings. An organization service key requires its own eligible named Shared-Space grant; it does not inherit its creator's access. Organization roles alone do not grant private-content reads.
+A default personal key follows its owner's current Space access. Valid existing scoped personal keys also work in Spaces. They retain their stored scope limits and the Member publish cap, together with current owner access. Invalid scope data remains blocked. Migration preserves the key, secret, stored permissions, enabled state and expiry. Do not replace a valid scoped key merely to use Spaces. New personal keys use the default access model. Only the owner can rotate or enable a personal key. Rotation or enabling retains a scoped key's ceiling. Never read credential stores, request a token in chat, or switch identities after denial. OAuth retains its approved scope ceilings.
+
+An organization service key needs its own eligible Shared-Space grant. It does not inherit its creator's access. Migration gives eligible existing read-only keys Viewer access to the migration Shared Space. Default or publish-capable keys receive Editor access. Migration grants no Manager or My Space access. New keys need an explicit grant. Organization roles alone grant no private-content reads.
 
 ## Choose a destination, then create
 
