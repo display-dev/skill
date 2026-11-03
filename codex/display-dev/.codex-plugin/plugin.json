@@ -1,6 +1,6 @@
 {
   "name": "display-dev",
-  "version": "0.7.4",
+  "version": "0.10.0",
   "description": "Publish, inspect, edit, and share HTML or Markdown artifacts with access controls.",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
@@ -11,11 +11,16 @@
   "keywords": ["display.dev", "publish", "search", "read", "edit", "share", "sso", "company-auth", "codex", "mcp"],
   "interface": {
     "displayName": "display.dev",
-    "shortDescription": "Publish, inspect, edit, and share artifacts.",
-    "longDescription": "Publish HTML and Markdown artifacts, browse and search published work, read bounded source context, make exact versioned edits, and share with public, private, or company-authenticated access. The Codex plugin bundles the display.dev skill and remote MCP server.",
+    "shortDescription": "Publish and share agent docs",
+    "longDescription": "display.dev gives your agent a place to publish its work – reports, specs, dashboards, prototypes and decks – as HTML or Markdown artifacts. Each artifact is a page at its own URL. Your team opens it with the Google or Microsoft account they already use, or with a one-time password. You choose who can see each artifact: anyone with the link, your organization, or only the people you invite.\n\nYour team comments directly on the page. The agent reads the comments, edits the source and publishes the next version at the same URL. Every version and comment stays with the artifact.\n\nWith this plugin, your agent can:\n- publish a new artifact, or a new version of an existing one\n- find, search and read your artifacts and their source\n- make exact edits, and rename, copy or delete artifacts\n- change who can see an artifact and share it with a teammate or client by email\n- read, add, resolve and reopen comments\n\nOwners and Admins can also manage members, the organization logo and verified email domains, where their plan includes them.\n\nYou sign in to display.dev through OAuth. Each call uses the organization and permissions you choose when you connect. The plugin cannot change your plan or billing.",
     "developerName": "display.dev",
     "category": "Productivity",
+    "capabilities": ["Publish HTML and Markdown", "Search and read artifacts", "Make versioned edits", "Share with access controls", "Iterate on comments"],
     "websiteURL": "https://display.dev",
-    "logo": "./assets/logo.svg"
+    "supportURL": "https://display.dev/support",
+    "privacyPolicyURL": "https://display.dev/privacy",
+    "termsOfServiceURL": "https://display.dev/terms",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
   }
 }

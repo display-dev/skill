@@ -10,12 +10,19 @@ Public agent skill that teaches your AI assistant how to publish small inline va
 npx skills add display-dev/skill --skill display-dev
 ```
 
-### Claude Code – plugin
+### Claude Code – plugin (skill + Visualize + bundled MCP server)
 
 ```sh
 /plugin marketplace add display-dev/skill
 /plugin install display-dev@display-dev
 ```
+
+Then run `/mcp` and complete OAuth for `plugin:display-dev:display-dev`.
+
+The marketplace installs the Display plugin from
+[`display-dev/claude-plugin`](https://github.com/display-dev/claude-plugin).
+Its [README](https://github.com/display-dev/claude-plugin#readme) documents the
+bundled skills, MCP server, hooks, commands, and what they run, fetch, and store.
 
 ### Codex – plugin (skill + bundled MCP server)
 
@@ -23,7 +30,7 @@ npx skills add display-dev/skill --skill display-dev
 codex plugin marketplace add display-dev/skill
 ```
 
-Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, `get_referral_overview`, sharing, and comment tools are available after sign-in – no separate MCP setup.
+Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
 
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
@@ -45,9 +52,8 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "add a company email domain"
 - "transfer an email domain"
 - "change the email domains add-on"
-- "show my referral link" / "show referral rewards"
 
-You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. Account creation and sign-in use a human-approved email OTP: the agent starts the flow, the human reads and supplies the six-digit code, and the installed `dsp` CLI stores the resulting session. The skill never instructs an agent to inspect the user's inbox.
+You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. To create an account or sign in, connect the bundled remote MCP server through OAuth where the host supports it, or run `dsp login --email you@example.com` in your own terminal and enter the six-digit code there. The installed `dsp` CLI stores the resulting session. The skill never asks for, reads, or relays the code, and never instructs an agent to inspect your inbox.
 
 Authenticated remote MCP uses inline `publish(content=...)` for small generated
 values. For an existing or large HTML/Markdown file, the skill can call
@@ -83,12 +89,6 @@ and the CLI never perform the irreversible confirmation.
 
 The paid email domains add-on is also managed by a current Owner in **Settings
 → Email Domains**. MCP and the direct CLI do not enable or disable it.
-
-For the referral program, the skill uses the read-only
-`get_referral_overview` MCP tool to return the link available to the current
-member or organization connection and to explain earned, available, and used
-organization rewards. It reports missing links without guessing why they are
-unavailable.
 
 For an existing artifact, the skill prefers MCP `make_copy` or `dsp make-copy` to create
 a new artifact from a retained version. Discussions and people invited to the
@@ -129,3 +129,11 @@ Full docs at [display.dev/docs/skill](https://display.dev/docs/skill).
 ## License
 
 MIT – see [LICENSE](./LICENSE). Bundles [jq 1.7.1](https://github.com/jqlang/jq) (MIT, © 2012 Stephen Dolan); full text in [`display-dev/bin/jq.LICENSE`](display-dev/bin/jq.LICENSE).
+
+## Spaces tasks
+
+For organizations that use Spaces, the skill covers destination previews, file and folder creation, bounded reads and exact edits, downloads, sharing, history, Trash, groups, key access, member deactivation and discussions. Legacy organizations retain their numbered-artifact workflows.
+
+Use CLI 0.44.0 or later for the local workflow. Read `display-dev/references/spaces.md` for current access, credential limits and retry rules. The skill never installs or updates the CLI without approval.
+
+The Claude publish guard scans supported legacy publish inputs. It does not scan every native create/update, staged upload or sharing action.

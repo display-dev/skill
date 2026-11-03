@@ -15,6 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
       - name: Skill scripts stay executable (canonical + generated mounts)
         # Proves the committed install payload is runnable. Canonical scripts
         # are checked as committed (not chmod'd first), so a script committed
@@ -31,6 +35,12 @@ jobs:
               fi
             done
           done
+          for script in claude/hooks/*.sh; do
+            if [ ! -x "$script" ]; then
+              echo "not executable: $script" >&2
+              status=1
+            fi
+          done
           exit $status
 
       - name: Make wrapper executable
@@ -42,8 +52,14 @@ jobs:
         # assertions the transformer runs in --check mode.
         run: bin/sync-mounts.sh --check
 
+      - name: Bundled Visualize matches its pinned release
+        # claude/skills/visualize/ is a copy of one display-dev/visualize
+        # release (claude/visualize.lock). Edits belong in that repo.
+        run: bin/sync-visualize.sh --check
+
       - name: JSON manifests and config parse
         run: |
+          jq empty claude/hooks/hooks.json
           jq empty .cursor-plugin/plugin.json
           jq empty .claude-plugin/plugin.json
           jq empty .claude-plugin/marketplace.json
@@ -53,7 +69,7 @@ jobs:
 
       - name: Version equality across release metadata
         # Single source of truth is SKILL_VERSION in
-        # display-dev/scripts/_common.sh. Every manifest version field and
+        # display-dev/scripts/_common.sh. Every local manifest version field and
         # the Codex .mcp.json X-Client-Source suffix must match it, so a
         # release bump can't half-land across the hand-authored files.
         run: |
@@ -68,7 +84,8 @@ jobs:
           }
           check "$(jq -r .version .cursor-plugin/plugin.json)" .cursor-plugin/plugin.json
           check "$(jq -r .version .claude-plugin/plugin.json)" .claude-plugin/plugin.json
-          check "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)" .claude-plugin/marketplace.json
+          check "$(jq -r '.mcpServers["display-dev"].headers["X-Client-Source"]' .claude-plugin/plugin.json | sed 's/.*@//')" '.claude-plugin/plugin.json (X-Client-Source)'
+          check "$(grep -oE 'display-dev-claude-plugin@[0-9]+\.[0-9]+\.[0-9]+' claude/commands/feedback.md | sort -u | sed 's/.*@//')" claude/commands/feedback.md
           check "$(jq -r .version codex/display-dev/.codex-plugin/plugin.json)" codex/display-dev/.codex-plugin/plugin.json
           check "$(jq -r '.mcpServers["display-dev"].http_headers["X-Client-Source"]' codex/display-dev/.mcp.json | sed 's/.*@//')" codex/display-dev/.mcp.json
           check "$(grep -oE 'display-dev-skill@[0-9]+\.[0-9]+\.[0-9]+' display-dev/SKILL.md | sort -u | sed 's/.*@//')" display-dev/SKILL.md
@@ -79,13 +96,20 @@ jobs:
           for script in display-dev/scripts/*.sh; do
             bash -n "$script"
           done
+          for script in claude/hooks/*.sh; do
+            bash -n "$script"
+          done
           bash -n tests/run.sh
+          bash -n tests/claude-hooks.sh
 
       - name: Helper trust-boundary tests
         run: bash tests/run.sh
 
+      - name: Claude Code plugin hook tests
+        run: bash tests/claude-hooks.sh
+
       - name: Candidate archive contract
-        run: node --test tests/archive-candidate.test.mjs
+        run: node --test tests/archive-candidate.test.mjs tests/standalone.test.mjs tests/release-metadata.test.mjs
 
       - name: ShellCheck
         # Pinned to v2.0.0 by full commit SHA — public-repo supply-chain
@@ -93,6 +117,12 @@ jobs:
         uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
         with:
           scandir: ./display-dev/scripts
+          severity: warning
+
+      - name: ShellCheck Claude Code plugin hooks
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
+        with:
+          scandir: ./claude/hooks
           severity: warning
 
       - name: ShellCheck tests

@@ -3,16 +3,15 @@
   "owner": {
     "name": "display.dev"
   },
-  "description": "display.dev plugins for publishing, inspecting, editing, and sharing agent-produced artifacts.",
+  "description": "display.dev plugins for publishing, inspecting, editing, and sharing agent-produced artifacts, with Visualize for on-brand HTML.",
   "plugins": [
     {
       "name": "display-dev",
       "source": {
         "source": "github",
-        "repo": "display-dev/skill"
+        "repo": "display-dev/claude-plugin"
       },
-      "description": "Publish, browse, search, read, edit, and share HTML or Markdown artifacts with public, private, or company-authenticated access.",
-      "version": "0.7.4",
+      "description": "Publish, browse, search, read, edit, and share HTML or Markdown artifacts with public, private, or company-authenticated access. Includes Visualize, the display.dev MCP server, and /display-dev:feedback for reviewer comments.",
       "author": {
         "name": "display.dev",
         "url": "https://display.dev"
@@ -27,7 +26,10 @@
         "html",
         "markdown",
         "sso",
-        "agent-skills"
+        "agent-skills",
+        "visualize",
+        "comments",
+        "mcp"
       ]
     }
   ]

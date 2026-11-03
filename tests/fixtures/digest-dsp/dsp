@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Test double for the comment-digest hook. Records argv and prints the
+# JSON file named by FAKE_DSP_LIST. Exits 1 when FAKE_DSP_FAIL is set.
+set -euo pipefail
+
+: "${FAKE_DSP_ARGS:?FAKE_DSP_ARGS is required}"
+printf '%s\0' "$@" > "$FAKE_DSP_ARGS"
+if [[ -n "${FAKE_DSP_FAIL:-}" ]]; then
+  echo 'Not signed in' >&2
+  exit 1
+fi
+cat "${FAKE_DSP_LIST:?FAKE_DSP_LIST is required}"
