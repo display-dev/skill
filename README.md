@@ -99,6 +99,19 @@ the returned policy denial and asks before changing the requested audience or
 recipients. Only an Owner can change either control in the dashboard; the CLI
 and MCP tools do not provide a policy override.
 
+## Sorting compatibility
+
+The skill supports the published CLI 0.45 and 0.46 sorting options and checks the active MCP schema before use.
+
+| CLI version | Added sorts | Lists |
+|---|---|---|
+| 0.45.0+ | Type (`format`), Owner (`owner`) | Space/folder contents, Home and Shared with me |
+| 0.46.0+ | Created by (`createdBy`) | Space/folder contents only |
+
+The guidance covers direction, name ties, missing owners/creators and cursor recovery.
+It checks installed capabilities before use and asks before updating the CLI.
+See the [Spaces reference](display-dev/references/spaces.md#sort-lists) for examples and list-specific limits.
+
 ## Codex local development (maintainers)
 
 The Codex plugin bundle lives under `codex/display-dev/` and is built from the canonical skill. After editing `display-dev/`, regenerate the mounts and install from the repo-local marketplace (`.agents/plugins/marketplace.json`):

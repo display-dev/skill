@@ -10,6 +10,58 @@ A default personal key follows its owner's current Space access. Valid existing 
 
 An organization service key needs its own eligible Shared-Space grant. It does not inherit its creator's access. Migration gives eligible existing read-only keys Viewer access to the migration Shared Space. Default or publish-capable keys receive Editor access. Migration grants no Manager or My Space access. New keys need an explicit grant. Organization roles alone grant no private-content reads.
 
+## Sort lists
+
+Check the installed CLI version and the command's offline `--help` before choosing a sort.
+For hosted MCP, check the active tool schema independently of the installed CLI version.
+
+| Sort value | Displayed label | Minimum CLI |
+|---|---|---|
+| `format` | Type | 0.45.0 |
+| `owner` | Owner | 0.45.0 |
+| `createdBy` | Created by | 0.46.0 |
+
+`list_space_contents` and `list_folder_contents` accept these values when their active schema offers them.
+They also accept `name`, `modified`, and `dir: "asc"` or `"desc"`.
+Use `createdBy` only for Space or folder contents.
+
+For Home or Shared with me file lists, use `list_files` with the matching `view` and `format` or `owner`.
+Shared-folder discovery uses `find_folders(view: "shared-with-me")` with either value.
+Do not send these added sorts to the Space directory, Trash, or fixed-order name search.
+
+CLI examples:
+
+```bash
+# CLI 0.45.0 or later
+dsp space list-contents <spaceId> --sort format --dir asc
+dsp folder list <folderId> --sort owner --dir desc
+dsp file list --view home --sort format --dir asc
+
+# CLI 0.46.0 or later
+dsp folder list <folderId> --sort createdBy --dir asc
+```
+
+`owner` means the personal Space owner or Shared Space name, not the item's creator.
+`createdBy` uses the recorded creator's displayed name.
+`format` uses the displayed Type label, including arbitrary file formats.
+`--type` remains a separate filter.
+
+Only Name keeps folders first inside Space or folder contents, in either direction.
+Other sorts mix folders and files.
+Home contains files only.
+Shared with me mixes kinds for every sort.
+Equal Type, Owner or Created by values follow item Name in the selected direction.
+Item IDs break remaining ties in ascending order.
+Missing owners and unknown creators stay last in both directions.
+
+Continue with `nextCursor` and the same sort, direction and filters.
+If a cursor is rejected after its item, owner, creator or access changes, restart without the cursor.
+Never sort one loaded page and present it as the order of the complete list.
+
+Do not use `createdBy` with CLI 0.45.
+Use an authorized MCP tool that advertises it, or report that CLI 0.46.0 is required.
+Ask before updating the installed CLI.
+
 ## Choose a destination, then create
 
 Use `list_spaces`, `get_space`, `list_space_contents`, `get_folder`, `list_folder_contents`, `find_files`, `find_folders`, or `list_files` to identify an authorized target. Preserve cursors with the same filters. CLI equivalents live under `dsp space`, `dsp folder`, and `dsp file`.
