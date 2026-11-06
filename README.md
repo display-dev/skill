@@ -101,12 +101,13 @@ and MCP tools do not provide a policy override.
 
 ## Sorting compatibility
 
-The skill supports the published CLI 0.45 and 0.46 sorting options and checks the active MCP schema before use.
+The skill supports CLI 0.45 and 0.46 sorting options and CLI 0.47 Home folder discovery. It checks the active MCP schema before use.
 
-| CLI version | Added sorts | Lists |
+| CLI version | Added support | Lists |
 |---|---|---|
 | 0.45.0+ | Type (`format`), Owner (`owner`) | Space/folder contents, Home and Shared with me |
 | 0.46.0+ | Created by (`createdBy`) | Space/folder contents only |
+| 0.47.0+ | Home folder discovery (`dsp folder find --view home`) | Home |
 
 The guidance covers direction, name ties, missing owners/creators and cursor recovery.
 It checks installed capabilities before use and asks before updating the CLI.
