@@ -4,7 +4,7 @@ Use this reference for Space, folder, native file, revision, history, discussion
 
 ## Discover the available path
 
-Prefer one authorized MCP connection for the whole task. Check its registered tools and exact schemas. Use the installed CLI only when it supports the required command. Run `dsp --version` and the relevant offline `--help`; Spaces commands require CLI 0.44.0 or later. Do not silently install or update software, change host configuration, or use a runtime package runner.
+Prefer one authorized MCP connection for the whole task. Check its registered tools and exact schemas. Use the installed CLI only when it supports the required command. Run `dsp --version` and the relevant offline `--help`. Use CLI 0.49.0 or later for these Spaces instructions and the four item-role choices. Do not silently install or update software, change host configuration, or use a runtime package runner.
 
 A default personal key follows its owner's current Space access. Valid existing scoped personal keys also work in Spaces. They retain their stored scope limits and the Member publish cap, together with current owner access. Invalid scope data remains blocked. Migration preserves the key, secret, stored permissions, enabled state and expiry. Do not replace a valid scoped key merely to use Spaces. New personal keys use the default access model. Only the owner can rotate or enable a personal key. Rotation or enabling retains a scoped key's ceiling. Never read credential stores, request a token in chat, or switch identities after denial. OAuth retains its approved scope ceilings.
 
@@ -97,6 +97,20 @@ A stale base requires reading the current revision and reconciling the user's in
 
 ## Share and request access
 
+Files and folders accept Viewer, Commenter, Contributor, or Editor. Contributor
+creates and edits within the existing audience. Contributor cannot inspect
+sharing, suggest recipients, review requests, or attach explicit initial access.
+Editor also organizes and manages people, groups, Company, link access, and
+discovery within existing organization and recipient restrictions.
+
+Manager is assignable only at a Shared Space root. Existing direct file/folder
+Managers become peer-manageable Editors. Inherited Space Managers and protected
+My Space ownership remain. Link-derived Editor alone cannot manage sharing.
+Use the actual returned capabilities and role choices. If the server rejects a
+role or sharing operation, ask an authorized Editor or Space Manager to act.
+Do not retry with another identity, public link, legacy operation, or increased
+access. Preserve the original denial instead of inventing a workaround.
+
 Inspect with `get_file_access` or `get_folder_access`. Use the corresponding `share_*`, `change_*_access`, or `remove_*_access` tool for the user's exact recipient and role. Preserve the returned tagged access reference and ETag for changes. Removing a direct grant does not remove inherited access. Space membership and members-only policy can still restrict access. Do not broaden recipients or change organization policy after denial.
 
 Use `request_file_access` or `request_folder_access` only for the intended target, requested role, message, and stable key. Submission neither confirms existence nor grants access. Sharing-authorized reviewers use `list_file_access_requests`, `list_folder_access_requests`, `approve_access_request`, and `dismiss_access_request`. Approval does not create Space membership. Keep the same key on an unchanged retry.
@@ -105,7 +119,7 @@ Use `request_file_access` or `request_folder_access` only for the intended targe
 
 Use `get_file_history` and `get_file_revision` to inspect saved revisions and their current actions. Keep exact revision IDs. `keep_file_revision` cannot be undone. `delete_file_revision` requires deliberate confirmation of the exact eligible historical revision; comments remain. Current, kept, held, or otherwise protected revisions can be ineligible. A listed action is still subject to current authority at execution.
 
-`list_trash`, `trash_files`, `trash_folders`, `restore_files`, and `restore_folders` provide reversible item lifecycle. Review the affected selection and confirmation before acting. Preserve original request identity after interruption. Restore retains item identity, history, and grants; it does not promise permanent erasure or a policy bypass.
+`list_trash`, `trash_files`, `trash_folders`, `restore_files`, and `restore_folders` provide reversible item lifecycle. Review the affected selection and confirmation before acting. Preserve original request identity after interruption. Current named Editor access on an item permits Trash and Restore to its unchanged original location in My Space or a Shared Space; Editor access to its parent is not required. Restore rechecks current access, policy, and the original location's availability. Restore retains item identity, history, and grants; it does not promise permanent erasure or a policy bypass. Dashboard Trash stays within the selected organization. Use known-Space Trash inspection for an eligible external item. Direct access does not add foreign items to the selected organization’s Trash.
 
 Shared-Space administration uses `create_space`, `list_admin_spaces`, `list_space_members`, `add_space_member`, `change_space_member_role`, `remove_space_member`, `get_space_settings`, `rename_space`, `set_space_members_only`, `delete_space`, `delete_space_with_contents`, and `restore_space`. Inspect the current Space and exact preview/confirmation before consequential changes. Management authority is separate from reading private descendants.
 
