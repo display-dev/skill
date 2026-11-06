@@ -24,7 +24,7 @@ argument is optional: `$ARGUMENTS`
 Use one display.dev tool path for the whole task:
 
 1. If a shell is available and `dsp` is on PATH, use the CLI. Add
-   `--client-source display-dev-claude-plugin@0.10.1` to every `dsp` command.
+   `--client-source display-dev-claude-plugin@0.10.2` to every `dsp` command.
    Prefix every command that changes state (`publish`, `edit`, `share`,
    `comment add`, `thread resolve`) with
    `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code`, so the
@@ -41,7 +41,7 @@ For a native Spaces file, follow **D. Native file feedback**. The numbered-artif
 List the user's artifacts that have open comments:
 
 ```bash
-dsp list --client-source display-dev-claude-plugin@0.10.1 --author me --sort updated_at --dir desc --limit 100 --json
+dsp list --client-source display-dev-claude-plugin@0.10.2 --author me --sort updated_at --dir desc --limit 100 --json
 ```
 
 (MCP: `list` with `author: ["me"]`, `sort: "updated_at"`, `limit: 100`.)
@@ -61,8 +61,8 @@ updated artifacts has open comments, and stop.
    before the first hyphen: `https://display.dsp.so/abc12345-q3-plan` →
    `abc12345`.
 2. Read the metadata and the open threads:
-   `dsp get-metadata --client-source display-dev-claude-plugin@0.10.1 <shortId>` and
-   `dsp comment --client-source display-dev-claude-plugin@0.10.1 list --artifact <shortId> --status open`
+   `dsp get-metadata --client-source display-dev-claude-plugin@0.10.2 <shortId>` and
+   `dsp comment --client-source display-dev-claude-plugin@0.10.2 list --artifact <shortId> --status open`
    (MCP: `get_metadata`, `list_comments`). Note the current version.
 3. Sort each open thread into one group:
    - **Change request**: a change to the artifact's content.
@@ -81,19 +81,19 @@ updated artifacts has open comments, and stop.
 5. Make the approved changes as one new version:
    - If the artifact was published from a file in this workspace and the
      user confirms that file, edit it and publish it:
-     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp publish --client-source display-dev-claude-plugin@0.10.1 <path> --id <shortId> --base-version <version>`.
+     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp publish --client-source display-dev-claude-plugin@0.10.2 <path> --id <shortId> --base-version <version>`.
    - Otherwise export the current version
-     (`dsp export --client-source display-dev-claude-plugin@0.10.1 <shortId>@<version> > <tmp file>`), edit the copy, and
+     (`dsp export --client-source display-dev-claude-plugin@0.10.2 <shortId>@<version> > <tmp file>`), edit the copy, and
      publish it the same way. With MCP, edit the content you read and call
      `publish` with `short_id` and `base_version`.
    - For one small change,
-     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp edit --client-source display-dev-claude-plugin@0.10.1 <shortId> --base-version <version> --old <text> --new <text>`
+     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp edit --client-source display-dev-claude-plugin@0.10.2 <shortId> --base-version <version> --old <text> --new <text>`
      (MCP: `edit`) is also fine.
 6. Close the threads:
    - Applied change: reply with one line, for example "Changed in v7: the
      churn figure now uses Q3 data.", then resolve the thread
-     (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp comment --client-source display-dev-claude-plugin@0.10.1 add --artifact <shortId> --parent <rootCommentId> --body <text>`,
-     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp thread --client-source display-dev-claude-plugin@0.10.1 resolve <rootCommentId>`; MCP: `add_comment`,
+     (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp comment --client-source display-dev-claude-plugin@0.10.2 add --artifact <shortId> --parent <rootCommentId> --body <text>`,
+     `DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp thread --client-source display-dev-claude-plugin@0.10.2 resolve <rootCommentId>`; MCP: `add_comment`,
      `resolve_thread`).
    - Question: reply with the answer and leave the thread open for the
      person who asked.
@@ -107,10 +107,10 @@ Say so, then offer:
 
 - **Ask someone to review it**: ask for the reviewer's email address, then
   share the artifact with them
-  (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp share --client-source display-dev-claude-plugin@0.10.1 <shortId> --add-users <email>`; MCP: `share`). Do not change
+  (`DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp share --client-source display-dev-claude-plugin@0.10.2 <shortId> --add-users <email>`; MCP: `share`). Do not change
   the artifact's visibility.
 - **Wait for comments**: available only with a shell. Poll
-  `dsp comment --client-source display-dev-claude-plugin@0.10.1 list --artifact <shortId> --status open --since <start time>`
+  `dsp comment --client-source display-dev-claude-plugin@0.10.2 list --artifact <shortId> --status open --since <start time>`
   every 60 seconds in the background. When a comment arrives, continue with
   B. Stop after the time the user gives, or after 60 minutes.
 - **Nothing for now**: stop.
@@ -125,7 +125,7 @@ Read the bundled Display skill’s Spaces reference first. Confirm the exact nat
 4. Read the exact current source needed for approved edits. Use `edit_file` or the installed CLI with that explicit revision and a stable mutation key:
 
 ```bash
-DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp file edit <fileId> --client-source display-dev-claude-plugin@0.10.1 --old <oldText> --new <newText> --base-revision <revisionId> --idempotency-key <editRequestKey>
+DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp file edit <fileId> --client-source display-dev-claude-plugin@0.10.2 --old <oldText> --new <newText> --base-revision <revisionId> --idempotency-key <editRequestKey>
 ```
 
 For a full replacement, use the current native `update_file` or `dsp file update` contract. Inspect its exact inputs first. Keep the selected source bytes, media type, and base revision. Do not silently replace a stale base or retarget the edit.
@@ -133,8 +133,8 @@ For a full replacement, use the current native `update_file` or `dsp file update
 5. Reply only to the selected root. The reply omits the base revision and anchor because it retains the root’s context:
 
 ```bash
-DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp comment add --client-source display-dev-claude-plugin@0.10.1 --file <fileId> --parent <rootCommentId> --body <replyText> --idempotency-key <replyRequestKey>
-DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp thread resolve --client-source display-dev-claude-plugin@0.10.1 <rootCommentId>
+DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp comment add --client-source display-dev-claude-plugin@0.10.2 --file <fileId> --parent <rootCommentId> --body <replyText> --idempotency-key <replyRequestKey>
+DISPLAYDEV_ACTOR_TYPE=agent DISPLAYDEV_ACTOR_NAME=claude-code dsp thread resolve --client-source display-dev-claude-plugin@0.10.2 <rootCommentId>
 ```
 
 With MCP, use `add_comment(file_id, parent_id, body, idempotency_key)` and `resolve_comment_thread(comment_id)`. Resolve only addressed threads when the current action permits it. Leave questions open and skipped threads unchanged.

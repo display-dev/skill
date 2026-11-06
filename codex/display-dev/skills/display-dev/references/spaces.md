@@ -48,7 +48,10 @@ dsp folder list <folderId> --sort createdBy --dir asc
 
 Only Name keeps folders first inside Space or folder contents, in either direction.
 Other sorts mix folders and files.
-Home contains files only.
+Home shows folders before files under every sort. The selected sort applies within each kind.
+With CLI 0.47.0 or later, use `dsp folder find --view home` for Home folders.
+Use `find_folders(view: "home")` when that value appears in its current schema.
+Use `list_files(view: "home")` for the file-only collection.
 Shared with me mixes kinds for every sort.
 Equal Type, Owner or Created by values follow item Name in the selected direction.
 Item IDs break remaining ties in ascending order.
