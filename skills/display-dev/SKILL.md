@@ -323,8 +323,18 @@ For Spaces, use 2–200 characters, literal words, final-word prefixes or quoted
 phrases. Complete long words remain searchable; long unfinished prefixes can
 omit matches. Keep server order and the returned native IDs/URLs. Search covers
 only indexed text: partial/name-only coverage and recent-save or move omissions
-are possible. Narrow `limited` results, even if empty; do not invent a cursor,
-total or snippet. Errors stay errors. Do not retry them as legacy search.
+are possible. Use excerpts when returned. Relevance gives a bounded set with
+an unknown total. If the current schema supports date sorting, use
+`modified-desc` or `modified-asc` and pass a returned `nextCursor` with the
+same query, filters and limit. Continue an empty page when it returns a cursor.
+If results are limited without a cursor, narrow the query. Keep errors in the
+selected Spaces search context.
+
+The CLI uses plain `dsp search "quarterly plan"`. Refinements require CLI
+0.50.0 or later: `--space-id`, `--type`, `--modified-after`,
+`--modified-before`, `--created-by` and `--sort`. Check help before using them.
+The MCP tool uses `space_id`, `type`, `modified_after`, `modified_before`,
+`created_by` and `sort` where its schema advertises them.
 
 Read a native result with `read_file(file_id=...)` or `get_file(file_id=...)` when
 registered, or `dsp file read <id>` on a compatible CLI. Do not pass its native ID
