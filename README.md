@@ -101,12 +101,12 @@ and MCP tools do not provide a policy override.
 
 ## Sorting compatibility
 
-The skill supports the published CLI 0.45 and 0.46 sorting options and checks the active MCP schema before use.
+The skill supports these sorts and checks the installed CLI help and the active MCP schema before use.
 
-| CLI version | Added sorts | Lists |
-|---|---|---|
-| 0.45.0+ | Type (`format`), Owner (`owner`) | Space/folder contents, Home and Shared with me |
-| 0.46.0+ | Created by (`createdBy`) | Space/folder contents only |
+| Sorts | Lists |
+|---|---|
+| Type (`format`), Owner (`owner`) | Space/folder contents, Home and Shared with me |
+| Created by (`createdBy`) | Space/folder contents only |
 
 The guidance covers direction, name ties, missing owners/creators and cursor recovery.
 It checks installed capabilities before use and asks before updating the CLI.
@@ -147,6 +147,6 @@ MIT – see [LICENSE](./LICENSE). Bundles [jq 1.7.1](https://github.com/jqlang/j
 
 For organizations that use Spaces, the skill covers destination previews, file and folder creation, bounded reads and exact edits, downloads, sharing, history, Trash, groups, key access, member deactivation and discussions. Legacy organizations retain their numbered-artifact workflows.
 
-Use CLI 0.49.0 or later for the local workflow. Read `display-dev/references/spaces.md` for current access, credential limits and retry rules. The skill never installs or updates the CLI without approval.
+Read `display-dev/references/spaces.md` for current access, credential limits and retry rules. The skill never installs or updates the CLI without approval.
 
 The Claude publish guard scans supported legacy publish inputs. It does not scan every native create/update, staged upload or sharing action.

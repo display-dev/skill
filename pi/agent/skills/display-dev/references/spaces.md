@@ -4,7 +4,7 @@ Use this reference for Space, folder, native file, revision, history, discussion
 
 ## Discover the available path
 
-Prefer one authorized MCP connection for the whole task. Check its registered tools and exact schemas. Use the installed CLI only when it supports the required command. Run `dsp --version` and the relevant offline `--help`. Use CLI 0.49.0 or later for these Spaces instructions and the four item-role choices. Do not silently install or update software, change host configuration, or use a runtime package runner.
+Prefer one authorized MCP connection for the whole task. Check its registered tools and exact schemas. Use the installed CLI only when it supports the required command. Run `dsp --version` and the relevant offline `--help`. Do not silently install or update software, change host configuration, or use a runtime package runner.
 
 A default personal key follows its owner's current Space access. Valid existing scoped personal keys also work in Spaces. They retain their stored scope limits and the Member publish cap, together with current owner access. Invalid scope data remains blocked. Migration preserves the key, secret, stored permissions, enabled state and expiry. Do not replace a valid scoped key merely to use Spaces. New personal keys use the default access model. Only the owner can rotate or enable a personal key. Rotation or enabling retains a scoped key's ceiling. Never read credential stores, request a token in chat, or switch identities after denial. OAuth retains its approved scope ceilings.
 
@@ -32,12 +32,9 @@ Do not send these added sorts to the Space directory, Trash, or fixed-order name
 CLI examples:
 
 ```bash
-# CLI 0.45.0 or later
 dsp space list-contents <spaceId> --sort format --dir asc
 dsp folder list <folderId> --sort owner --dir desc
 dsp file list --view home --sort format --dir asc
-
-# CLI 0.46.0 or later
 dsp folder list <folderId> --sort createdBy --dir asc
 ```
 
@@ -58,8 +55,7 @@ Continue with `nextCursor` and the same sort, direction and filters.
 If a cursor is rejected after its item, owner, creator or access changes, restart without the cursor.
 Never sort one loaded page and present it as the order of the complete list.
 
-Do not use `createdBy` with CLI 0.45.
-Use an authorized MCP tool that advertises it, or report that CLI 0.46.0 is required.
+If the installed CLI help does not list `createdBy`, use an authorized MCP tool that advertises it, or report that the installed CLI needs an update.
 Ask before updating the installed CLI.
 
 ## Choose a destination, then create
@@ -68,7 +64,7 @@ Use `list_spaces`, `get_space`, `list_space_contents`, `get_folder`, `list_folde
 
 To filter by the original creating person, check that the list tool advertises `created_by` and `include_creators`. This applies to `list_space_contents`, `list_folder_contents`, `list_files` in Home or Shared with me, and `find_folders` in Home or Shared with me. Request `include_creators: true` to obtain accessible creator choices across all matching pages before creator filtering; select a returned `userId` as `created_by`. Each choice includes `userId`, `name`, and `image`. Omit the cursor when changing the creator. Creator identity is independent of the Space owner, sharing actor, and later editors; do not infer missing creator data. Space directory, Trash, and fixed-order search do not accept these inputs.
 
-CLI 0.48.0 or later uses `--created-by <userId>` and `--include-creators` on the matching existing list commands. For example, `dsp folder list <folderId> --include-creators`, then `dsp folder list <folderId> --created-by <userId>`. Use `dsp file list --view home` or `--view shared-with-me`, or `dsp folder find --view home` / `--view shared-with-me`, for collections. Check offline help and the registered tool schema before use. If these options are absent, report that the installed connection cannot filter by creator; do not silently replace server filtering with a filter of the loaded page or download every page.
+The CLI uses `--created-by <userId>` and `--include-creators` on the matching existing list commands. For example, `dsp folder list <folderId> --include-creators`, then `dsp folder list <folderId> --created-by <userId>`. Use `dsp file list --view home` or `--view shared-with-me`, or `dsp folder find --view home` / `--view shared-with-me`, for collections. Check offline help and the registered tool schema before use. If these options are absent, report that the installed connection cannot filter by creator; do not silently replace server filtering with a filter of the loaded page or download every page.
 
 Call `preview_file_creation` or `preview_folder_creation` before creating. Confirm the intended destination and audience. Omitted destination means the caller's My Space only where the tool explicitly supports it. Do not guess another parent after denial. Preserve explicit initial grants; `[]` adds no direct grants but does not remove inherited access.
 
