@@ -197,6 +197,18 @@ where the file exists, ask the user to publish through the dashboard, or use
 inline `content` only when the source is small enough. Never install a runtime
 or move credentials to work around the missing capability.
 
+## Restore from Trash
+
+In dashboard **Trash**, **Trashed** shows when someone moved the item to Trash.
+Find the item in the relevant Trash view and check whether **Restore** is
+available. Items become eligible for automatic deletion after a 30-day window.
+The temporary notice above the list gives the cutoff for items already in Trash
+when the policy takes effect. See [Trash retention](https://display.dev/docs/spaces#automatic-deletion-after-30-days)
+for the rollout schedule and timing rules.
+
+For MCP or CLI Restore, check the tools or commands the connected client
+supports and follow History and lifecycle in the [Spaces reference](references/spaces.md).
+
 ## Create or sign in to a display.dev account
 
 When the host bundles the display.dev remote MCP server, sign-in uses that

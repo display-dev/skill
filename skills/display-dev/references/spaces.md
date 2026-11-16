@@ -117,6 +117,25 @@ Use `get_file_history` and `get_file_revision` to inspect saved revisions and th
 
 `list_trash`, `trash_files`, `trash_folders`, `restore_files`, and `restore_folders` provide reversible item lifecycle. Review the affected selection and confirmation before acting. Preserve original request identity after interruption. Current named Editor access on an item permits Trash and Restore to its unchanged original location in My Space or a Shared Space; Editor access to its parent is not required. Restore rechecks current access, policy, and the original location's availability. Restore retains item identity, history, and grants; it does not promise permanent erasure or a policy bypass. Dashboard Trash stays within the selected organization. Use known-Space Trash inspection for an eligible external item. Direct access does not add foreign items to the selected organization’s Trash.
 
+To restore through MCP, inspect the item's Space Trash with `list_trash`. Verify
+the exact item and its current Restore action, then call `restore_files` or
+`restore_folders` with the selected IDs and a stable request key. Restore is
+available while the item remains in Trash and current access permits it.
+
+Automatic deletion of a folder includes its contents and their retained
+versions. A separately trashed child gets its own window and can delay the
+folder's deletion. **Keep forever** protects a version from version expiry.
+When Display automatically deletes a file from Trash, deletion includes its
+kept versions. Recovery pauses and restoring a deleted Shared Space preserve
+the original item deadlines. Restoring an item and moving it to Trash again
+starts a new window.
+
+Once Display automatically deletes an item from Trash, **Restore** is
+unavailable. For suspected application-caused loss, direct the user to support.
+Avoid promising that retained recovery data is available to the user or that
+the deadline is a physical erasure date. **Delete forever** and **Empty trash**
+use the existing Space-scoped preview and confirmation.
+
 Shared-Space administration uses `create_space`, `list_admin_spaces`, `list_space_members`, `add_space_member`, `change_space_member_role`, `remove_space_member`, `get_space_settings`, `rename_space`, `set_space_members_only`, `delete_space`, `delete_space_with_contents`, and `restore_space`. Inspect the current Space and exact preview/confirmation before consequential changes. Management authority is separate from reading private descendants.
 
 Use `restore_file_revision` or `dsp file restore-revision` to restore exact historical bytes as a fresh revision. Preserve the selected `revision_id`, current `base_revision`, and original request key. A stale base requires reconciliation; restoration never overwrites newer work automatically.
