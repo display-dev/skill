@@ -5,14 +5,14 @@
     "url": "https://display.dev"
   },
   "metadata": {
-    "description": "Display plugin for Cursor: publish, share and edit HTML or Markdown, and act on reviewer comments.",
+    "description": "Display for Cursor. The AI docs workspace that’s open to all agents and people. Any agent publishes HTML or Markdown to a private URL. Your team comments and edits on the page, and Spaces and search keep every doc in reach. Never pay for seats.",
     "version": "0.10.5"
   },
   "plugins": [
     {
       "name": "display",
       "source": "./cursor",
-      "description": "Publish HTML or Markdown as Display links, share them with your team, edit them in place and act on reviewer comments."
+      "description": "The AI docs workspace that’s open to all agents and people. Any agent publishes HTML or Markdown to a private URL. Your team comments and edits on the page, and Spaces and search keep every doc in reach. Never pay for seats."
     }
   ]
 }
