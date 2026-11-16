@@ -27,11 +27,12 @@ editor.
    git clone https://github.com/display-dev/skill.git display-dev-skill
    ```
 
-2. Link the plugin into Cursor's local plugin folder:
+2. Copy the plugin into Cursor's local plugin folder. Cursor does not load a
+   symlink that points outside that folder.
 
    ```sh
    mkdir -p ~/.cursor/plugins/local
-   ln -s "$PWD/display-dev-skill/cursor" ~/.cursor/plugins/local/display
+   cp -R display-dev-skill/cursor ~/.cursor/plugins/local/display
    ```
 
 3. Reload the Cursor window. Open **Settings → MCP**, select `display` and

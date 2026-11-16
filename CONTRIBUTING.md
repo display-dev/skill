@@ -181,17 +181,17 @@ ambiguous. Treat the agent run as a consumer-usability audit, not a replacement
 for the deterministic suite.
 
 For changes under `cursor/`, also test the Cursor plugin locally before
-release. Symlink the plugin into Cursor's local plugin folder and reload the
-window:
+release. Copy the plugin into Cursor's local plugin folder and reload the
+window. Cursor rejects a symlink whose target is outside that folder:
 
 ```sh
-ln -s "$PWD/cursor" ~/.cursor/plugins/local/display
+cp -R cursor ~/.cursor/plugins/local/display
 ```
 
 Then sign in through the bundled MCP server, publish a Private sample, share it
 with an email address, run `list`, `search`, `read` and `edit`, run
 `/display-feedback` on an artifact with an open comment, and revoke the
-connection in Connected apps. Remove the symlink afterwards. Cursor Marketplace
+connection in Connected apps. Remove the copy afterwards. Cursor Marketplace
 review re-checks every update, so Marketplace users get a release only after
 Cursor approves it.
 
