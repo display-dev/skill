@@ -20,9 +20,9 @@ The capability expires after 15 minutes. Do not finalize the same staged create 
 `create_upload` without inferring or revealing whether expiry, ticket validity,
 organization binding, or a missing object caused it. If it returns
 `upload_size_mismatch`, report that exact mismatch, measure the raw file again,
-and start with a new upload. Never reuse the old upload ID. Current per-artifact limits still apply: 10MB on
-Free and 50MB on Solo, Pro, and Enterprise, including when the plan changes
-between staging and publishing.
+and start with a new upload. Never reuse the old upload ID. The organization's current per-artifact size
+limit still applies, including when that limit changes between staging and
+publishing.
 
 For Claude Cowork Team and Enterprise, an Owner or Primary Owner must allow
 `api.display.dev` for code execution, then the user must start a new task. MCP
