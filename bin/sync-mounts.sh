@@ -4,6 +4,11 @@
 #   hermes/productivity/display.dev/        — Hermes well-known
 #   pi/agent/skills/display-dev/            — Pi coding agent (and frameworks
 #                                             built on Pi, e.g. OpenClaw)
+#   codex/display-dev/skills/display-dev/   — Codex plugin
+#   cursor/skills/display-dev/              — Cursor plugin
+#
+# It also derives the Cursor plugin's /display-feedback command from the
+# Claude plugin's feedback command (bin/sync-cursor-command.sh).
 #
 # Thin wrapper around bin/transform.mjs; the transformer carries the
 # per-mount placeholder table and the content+mode drift check. CI runs this
@@ -19,4 +24,5 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-exec node "$ROOT/bin/transform.mjs" "$@"
+node "$ROOT/bin/transform.mjs" "$@"
+"$ROOT/bin/sync-cursor-command.sh" "$@"

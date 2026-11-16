@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "display": {
+      "type": "http",
+      "url": "https://api.display.dev/v1/mcp",
+      "headers": {
+        "X-Client-Source": "display-dev-cursor-plugin@0.10.5"
+      }
+    }
+  }
+}

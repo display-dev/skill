@@ -47,8 +47,8 @@ jobs:
         run: chmod +x bin/sync-mounts.sh
 
       - name: Generated mounts match canonical (placeholders resolved)
-        # Covers all four generated skill mounts (skills / hermes / pi /
-        # codex), plus the no-unresolved-{{...}} and frontmatter-field-set
+        # Covers all five generated skill mounts (skills / hermes / pi /
+        # codex / cursor) and the derived Cursor feedback command, plus the no-unresolved-{{...}} and frontmatter-field-set
         # assertions the transformer runs in --check mode.
         run: bin/sync-mounts.sh --check
 
@@ -60,7 +60,9 @@ jobs:
       - name: JSON manifests and config parse
         run: |
           jq empty claude/hooks/hooks.json
-          jq empty .cursor-plugin/plugin.json
+          jq empty .cursor-plugin/marketplace.json
+          jq empty cursor/.cursor-plugin/plugin.json
+          jq empty cursor/mcp.json
           jq empty .claude-plugin/plugin.json
           jq empty .claude-plugin/marketplace.json
           jq empty codex/display-dev/.codex-plugin/plugin.json
@@ -82,7 +84,10 @@ jobs:
               status=1
             fi
           }
-          check "$(jq -r .version .cursor-plugin/plugin.json)" .cursor-plugin/plugin.json
+          check "$(jq -r .metadata.version .cursor-plugin/marketplace.json)" .cursor-plugin/marketplace.json
+          check "$(jq -r .version cursor/.cursor-plugin/plugin.json)" cursor/.cursor-plugin/plugin.json
+          check "$(jq -r '.mcpServers.display.headers["X-Client-Source"]' cursor/mcp.json | sed 's/.*@//')" 'cursor/mcp.json (X-Client-Source)'
+          check "$(grep -oE 'display-dev-cursor-plugin@[0-9]+\.[0-9]+\.[0-9]+' cursor/commands/display-feedback.md | sort -u | sed 's/.*@//')" cursor/commands/display-feedback.md
           check "$(jq -r .version .claude-plugin/plugin.json)" .claude-plugin/plugin.json
           check "$(jq -r '.mcpServers["display-dev"].headers["X-Client-Source"]' .claude-plugin/plugin.json | sed 's/.*@//')" '.claude-plugin/plugin.json (X-Client-Source)'
           check "$(grep -oE 'display-dev-claude-plugin@[0-9]+\.[0-9]+\.[0-9]+' claude/commands/feedback.md | sort -u | sed 's/.*@//')" claude/commands/feedback.md
@@ -99,6 +104,7 @@ jobs:
           for script in claude/hooks/*.sh; do
             bash -n "$script"
           done
+          bash -n bin/sync-cursor-command.sh
           bash -n tests/run.sh
           bash -n tests/claude-hooks.sh
 

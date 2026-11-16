@@ -40,7 +40,8 @@ const EXPECTED_FRONTMATTER_FIELDS = ['name', 'description'];
 // Per-mount placeholder values. Keys are the placeholder names (without the
 // `{{ }}` delimiters); values are the literal text substituted into that
 // mount's .md/.html files. The three generic mounts share one host-neutral
-// set; the Codex plugin's bundled skill copy gets Codex-specific wording.
+// set; the Codex and Cursor plugins' bundled skill copies get host-specific
+// wording.
 const GENERIC_PLACEHOLDERS = {
   host_generated_phrase: 'publish what the agent just generated',
   host_artifact_name: 'an artifact',
@@ -58,6 +59,12 @@ const PROVIDER_PLACEHOLDERS = {
     mcp_preference_note:
       'In the Codex plugin, the remote display.dev MCP server is bundled. Prefer it for supported publish/share/comment workflows after OAuth succeeds; use helpers or CLI for local files, CI, or when MCP is unavailable.',
   },
+  cursor_skill: {
+    host_generated_phrase: 'publish what Cursor just generated',
+    host_artifact_name: 'a Cursor artifact',
+    mcp_preference_note:
+      'In the Cursor plugin, the remote display.dev MCP server is bundled. Prefer it for supported publish/share/comment workflows after OAuth succeeds; use helpers or CLI for local files, CI, or when MCP is unavailable.',
+  },
 };
 
 // Source of truth for which `{{...}}` tokens the transformer resolves. Adding
@@ -71,6 +78,7 @@ const MOUNTS = [
   { provider: 'hermes',      path: 'hermes/productivity/display.dev',      displayName: 'Hermes' },
   { provider: 'pi',          path: 'pi/agent/skills/display-dev',          displayName: 'Pi' },
   { provider: 'codex_skill', path: 'codex/display-dev/skills/display-dev', displayName: 'Codex plugin skill' },
+  { provider: 'cursor_skill', path: 'cursor/skills/display-dev',           displayName: 'Cursor plugin skill' },
 ];
 
 // Substitution is scoped to authoring formats. Everything else (scripts, the
