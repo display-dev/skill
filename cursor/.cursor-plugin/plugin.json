@@ -1,7 +1,7 @@
 {
   "name": "display",
   "displayName": "Display",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "description": "The AI docs workspace that’s open to all agents and people. Any agent publishes HTML or Markdown to a private URL. Your team comments and edits on the page, and Spaces and search keep every doc in reach. Never pay for seats.",
   "author": { "name": "Display", "url": "https://display.dev" },
   "homepage": "https://display.dev/docs/mcp-cursor",

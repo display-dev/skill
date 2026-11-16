@@ -79,6 +79,30 @@ dsp file create <file> --parent-id <folderId> --content-type text/markdown --ide
 
 Use a request key accepted by the tool, and retain it until the outcome is known. Public-link authority alone cannot create or edit a file.
 
+## Document templates
+
+Check the active MCP schema or the installed CLI's offline help for the template operation. If it is unavailable, report the gap.
+
+To discover designated files, call `list_files` with `view: "home"` and `is_template: true`. Add `space_id` or `format: "html" | "markdown"` to narrow the results. Keep the same filters when continuing a cursor. Use `is_template: false` for ordinary Recent files. A readable template supplied by the user can be used by ID even when discovery omits it.
+
+Read the current revision with `get_file`. Review the access and location of an existing destination with `preview_file_creation` and `operation: "copy"`. Then call `copy_files` with one `file_ids` entry, `parent_id`, `idempotency_key`, and `template: {intent, name, source_revision_id}`.
+
+- `save-as-template` creates a separate designated file.
+- `use-template` creates an ordinary file. Its first revision contains the exact saved source. Edit the new file after creation.
+
+To mark or unmark an existing file, call `set_file_template` with `file_id`, `is_template`, and `idempotency_key`. Removal keeps the file and its history. Changing designation requires content-edit authority and creates no content revision.
+
+```bash
+dsp file list --view home --is-template true
+dsp file get <fileId>
+dsp file create --parent-id <folderId> --operation copy --preview
+dsp file copy <fileId> --parent-id <folderId> --template-intent use-template \
+  --name "Weekly update" --source-revision-id <revisionId> --idempotency-key <copyKey>
+dsp file set-template <fileId> --enabled false --idempotency-key <designationKey>
+```
+
+Check the result for each file. After an uncertain result, keep the exact inputs and key for a retry within 24 hours. After a stale selection, read and review the current revision before starting a new request with a new key. A missing gallery screenshot still allows the ordinary document preview and **Use template** when access permits.
+
 ## Read, search, edit, and download
 
 Use `get_file` for metadata, `read_file` for bounded UTF-8 source, and `search_file` for literal text in one saved revision. Cross-file `search` follows the Spaces search guidance in the entrypoint. Preserve opaque revision IDs and continuation offsets. Do not pass native IDs to legacy `short_id`, numbered `version`, or `--in` selectors.
@@ -116,6 +140,25 @@ Use `request_file_access` or `request_folder_access` only for the intended targe
 Use `get_file_history` and `get_file_revision` to inspect saved revisions and their current actions. Keep exact revision IDs. `keep_file_revision` cannot be undone. `delete_file_revision` requires deliberate confirmation of the exact eligible historical revision; comments remain. Current, kept, held, or otherwise protected revisions can be ineligible. A listed action is still subject to current authority at execution.
 
 `list_trash`, `trash_files`, `trash_folders`, `restore_files`, and `restore_folders` provide reversible item lifecycle. Review the affected selection and confirmation before acting. Preserve original request identity after interruption. Current named Editor access on an item permits Trash and Restore to its unchanged original location in My Space or a Shared Space; Editor access to its parent is not required. Restore rechecks current access, policy, and the original location's availability. Restore retains item identity, history, and grants; it does not promise permanent erasure or a policy bypass. Dashboard Trash stays within the selected organization. Use known-Space Trash inspection for an eligible external item. Direct access does not add foreign items to the selected organization’s Trash.
+
+To restore through MCP, inspect the item's Space Trash with `list_trash`. Verify
+the exact item and its current Restore action, then call `restore_files` or
+`restore_folders` with the selected IDs and a stable request key. Restore is
+available while the item remains in Trash and current access permits it.
+
+Automatic deletion of a folder includes its contents and their retained
+versions. A separately trashed child gets its own window and can delay the
+folder's deletion. **Keep forever** protects a version from version expiry.
+When Display automatically deletes a file from Trash, deletion includes its
+kept versions. Recovery pauses and restoring a deleted Shared Space preserve
+the original item deadlines. Restoring an item and moving it to Trash again
+starts a new window.
+
+Once Display automatically deletes an item from Trash, **Restore** is
+unavailable. For suspected application-caused loss, direct the user to support.
+Avoid promising that retained recovery data is available to the user or that
+the deadline is a physical erasure date. **Delete forever** and **Empty trash**
+use the existing Space-scoped preview and confirmation.
 
 Shared-Space administration uses `create_space`, `list_admin_spaces`, `list_space_members`, `add_space_member`, `change_space_member_role`, `remove_space_member`, `get_space_settings`, `rename_space`, `set_space_members_only`, `delete_space`, `delete_space_with_contents`, and `restore_space`. Inspect the current Space and exact preview/confirmation before consequential changes. Management authority is separate from reading private descendants.
 
