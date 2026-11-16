@@ -2,7 +2,7 @@
   "name": "display",
   "displayName": "Display",
   "version": "0.10.5",
-  "description": "Publish HTML or Markdown as Display links, share them with your team, edit them in place and act on reviewer comments.",
+  "description": "The AI docs workspace that’s open to all agents and people. Any agent publishes HTML or Markdown to a private URL. Your team comments and edits on the page, and Spaces and search keep every doc in reach. Never pay for seats.",
   "author": { "name": "Display", "url": "https://display.dev" },
   "homepage": "https://display.dev/docs/mcp-cursor",
   "repository": "https://github.com/display-dev/skill",

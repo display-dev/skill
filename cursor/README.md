@@ -1,8 +1,14 @@
 # Display for Cursor
 
-Publish HTML or Markdown from Cursor as Display links. Share them with your
-team, edit them in place, and act on reviewer comments without leaving the
-editor.
+The AI docs workspace that’s open to all agents and people. Ask Cursor to
+publish HTML or Markdown and you get one private link to share. Share it with
+your team and clients by email, behind your company’s Google or Microsoft
+sign-in. Your team comments and edits on the page, and Cursor reads the
+comments and publishes the next version. Each publish and each edit saves a
+version, and each doc shows who opened it. Spaces and folders keep the work of
+each team and each client together, and you and your agents search every doc
+you can open. Every plan includes unlimited viewers, so you never pay for
+seats.
 
 ## What the plugin adds
 
@@ -12,7 +18,8 @@ editor.
   organization. To disconnect, revoke it in
   [Connected apps](https://app.display.dev/settings/personal/connectors).
 - **Display skill.** Cursor uses it when you ask to publish, share, find, read
-  or edit your work, for example "publish this", "share this with the org" or
+  or edit your work, or to sort it into Spaces and folders. For example:
+  "publish this", "share this with the org", "find the quarterly report" or
   "change this passage in the published report".
 - **`/display-feedback` command.** Lists the open comments on an artifact,
   proposes a change, a reply or a skip for each thread, and acts only after you
