@@ -32,6 +32,10 @@ codex plugin marketplace add display-dev/skill
 
 Then open Codex `/plugins`, install **display.dev**, and complete MCP OAuth when prompted. The Codex plugin bundles the skill *and* the remote MCP server (`https://api.display.dev/v1/mcp`), so `publish`, `create_upload`, `make_copy`, `list`, `search`, `read`, `edit`, `get_metadata`, sharing, and comment tools are available after sign-in – no separate MCP setup.
 
+### Cursor – plugin (skill + bundled MCP server)
+
+The Cursor plugin lives in [`cursor/`](cursor/). It bundles the skill, the remote MCP server (`https://api.display.dev/v1/mcp`) and a `/display-feedback` command for reviewer comments. Sign in through OAuth when Cursor prompts you. See [`cursor/README.md`](cursor/README.md) for install steps.
+
 Works across Claude Code, Cursor, Codex, OpenCode, Hermes, and Pi.
 
 ## What you get

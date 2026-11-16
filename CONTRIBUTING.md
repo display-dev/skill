@@ -3,10 +3,11 @@
 ## What you edit, and what is generated
 
 - **Canonical skill content** lives under `display-dev/` (`SKILL.md`, `references/`, `scripts/`, `bin/`). Edit it here only.
-- **Hand-authored metadata/config/docs** outside `display-dev/` is edited directly: the plugin manifests (`.cursor-plugin/`, `.claude-plugin/`, `codex/display-dev/.codex-plugin/`), the Codex MCP config (`codex/display-dev/.mcp.json`), the marketplaces (`.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`), `README.md`, and this file.
+- **Hand-authored metadata/config/docs** outside `display-dev/` is edited directly: the plugin manifests (`.claude-plugin/`, `codex/display-dev/.codex-plugin/`, `cursor/.cursor-plugin/`), the MCP configs (`codex/display-dev/.mcp.json`, `cursor/mcp.json`), the marketplaces (`.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`, `.cursor-plugin/marketplace.json`), the Cursor plugin's `cursor/README.md` and logo, `README.md`, and this file.
 - **Claude Code plugin components** live under `claude/` and are edited directly: the `/display-dev:feedback` command (`claude/commands/`), the hooks (`claude/hooks/`), and their tests (`tests/claude-hooks.sh`). `.claude-plugin/plugin.json` points at them, so other hosts do not load them.
+- **Cursor plugin components** live under `cursor/`. `.cursor-plugin/marketplace.json` points Cursor at `cursor/`, and `cursor/.cursor-plugin/plugin.json` bundles the remote MCP server (`cursor/mcp.json`), the generated skill mount and the `/display-feedback` command. The command is generated from `claude/commands/feedback.md` by `bin/sync-cursor-command.sh`; edit the Claude command, never the Cursor copy.
 - **Bundled Visualize is never hand-edited.** `claude/skills/visualize/` is a copy of one `display-dev/visualize` release. Change Visualize in its own repo, release it, set the new tag in `claude/visualize.lock`, then run `bin/sync-visualize.sh`. CI runs `bin/sync-visualize.sh --check`.
-- **Generated skill mounts are never hand-edited.** `bin/transform.mjs` mirrors `display-dev/` to `skills/display-dev/`, `hermes/productivity/display.dev/`, `pi/agent/skills/display-dev/`, and `codex/display-dev/skills/display-dev/`, resolving per-host placeholders. CI fails if any mount drifts.
+- **Generated skill mounts are never hand-edited.** `bin/transform.mjs` mirrors `display-dev/` to `skills/display-dev/`, `hermes/productivity/display.dev/`, `pi/agent/skills/display-dev/`, `codex/display-dev/skills/display-dev/`, and `cursor/skills/display-dev/`, resolving per-host placeholders. `bin/sync-mounts.sh` also regenerates the Cursor command. CI fails if any mount or the command drifts.
 
 After editing `display-dev/`:
 
@@ -179,6 +180,21 @@ action, and a request for human confirmation when authority or identity is
 ambiguous. Treat the agent run as a consumer-usability audit, not a replacement
 for the deterministic suite.
 
+For changes under `cursor/`, also test the Cursor plugin locally before
+release. Symlink the plugin into Cursor's local plugin folder and reload the
+window:
+
+```sh
+ln -s "$PWD/cursor" ~/.cursor/plugins/local/display
+```
+
+Then sign in through the bundled MCP server, publish a Private sample, share it
+with an email address, run `list`, `search`, `read` and `edit`, run
+`/display-feedback` on an artifact with an open comment, and revoke the
+connection in Connected apps. Remove the symlink afterwards. Cursor Marketplace
+review re-checks every update, so Marketplace users get a release only after
+Cursor approves it.
+
 Clean-room testing cannot prove that published release URLs, the
 `/.well-known/agent-skills/` projection, or downstream scanners are correct.
 Verify those separately after the release is live.
@@ -194,13 +210,15 @@ or delete them as part of routine publishing.
 
 `SKILL_VERSION` in `display-dev/scripts/_common.sh` is the single source of truth for the release version — it travels on `X-Client-Source: display-dev-skill@<version>` for analytics attribution. Bump it in lockstep with every git tag, and bump it together with every other version-bearing file, because CI asserts they all match:
 
-- `.cursor-plugin/plugin.json`
+- `.cursor-plugin/marketplace.json` (`metadata.version`)
+- `cursor/.cursor-plugin/plugin.json`
+- `cursor/mcp.json` (the `display-dev-cursor-plugin@<version>` suffix in `X-Client-Source`)
 - `.claude-plugin/plugin.json`
 - `display-dev/SKILL.md` (every embedded `display-dev-skill@<version>` attribution literal)
 - `codex/display-dev/.codex-plugin/plugin.json`
 - `codex/display-dev/.mcp.json` (the `display-dev-codex-plugin@<version>` suffix in `X-Client-Source`)
 - `.claude-plugin/plugin.json` `mcpServers` (the `display-dev-claude-plugin@<version>` suffix in `X-Client-Source`)
-- `claude/commands/feedback.md` (every `display-dev-claude-plugin@<version>` literal)
+- `claude/commands/feedback.md` (every `display-dev-claude-plugin@<version>` literal; run `bin/sync-mounts.sh` afterwards to regenerate `cursor/commands/display-feedback.md`)
 
 For local testing without editing the file, set `SKILL_VERSION_OVERRIDE` in your environment.
 

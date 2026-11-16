@@ -1,0 +1,17 @@
+{
+  "name": "display",
+  "displayName": "Display",
+  "version": "0.10.5",
+  "description": "Publish HTML or Markdown as Display links, share them with your team, edit them in place and act on reviewer comments.",
+  "author": { "name": "Display", "url": "https://display.dev" },
+  "homepage": "https://display.dev/docs/mcp-cursor",
+  "repository": "https://github.com/display-dev/skill",
+  "license": "MIT",
+  "logo": "assets/logo.svg",
+  "keywords": ["display", "publish", "share", "docs", "markdown", "html", "comments", "mcp"],
+  "category": "productivity",
+  "tags": ["docs", "publishing", "collaboration", "mcp"],
+  "mcpServers": "./mcp.json",
+  "skills": "./skills/",
+  "commands": "./commands/"
+}

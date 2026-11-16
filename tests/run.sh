@@ -176,6 +176,7 @@ INSTALL_TREES=(
   "$ROOT/hermes/productivity/display.dev"
   "$ROOT/pi/agent/skills/display-dev"
   "$ROOT/codex/display-dev/skills/display-dev"
+  "$ROOT/cursor/skills/display-dev"
 )
 if grep -R -n -I -E '\{\{[^}]*\}\}' "${INSTALL_TREES[@]}"; then
   fail 'an installable skill tree contains an unresolved placeholder'

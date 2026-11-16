@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 316.98 316.98">
+  <!-- The /d symbol badge: white glyph on a Sky Blue rounded square. Keep the
+       canvas opaque: favicon proxies may flatten transparent rounded corners
+       onto white before dark-mode clients apply their own clipping. -->
+  <rect width="316.98" height="316.98" rx="30.98" ry="30.98" fill="#005FED"/>
+  <path fill="#FFFFFF" d="M243.36,52.72v70.91c-5.32-9-25.83-21.14-45.76-21.14-46.05,0-69.66,33.91-69.66,80.88,0,39.57,16.74,69.85,49.53,78.41,6.14,1.65,12.87,2.47,20.12,2.47,5.61,0,11.27-.92,16.64-2.47,12.77-3.72,23.85-11.22,29.12-19.3v19.3h26.12V52.72h-26.12ZM200.11,240.6c-27.72,0-45.42-23.61-45.42-57.23s17.7-57.23,45.42-57.23,45.42,23.61,45.42,57.23-16.83,57.23-45.42,57.23Z"/>
+  <path fill="#FFFFFF" d="M143.57,52.72L74.34,261.79H47.5L116.19,52.72Z"/>
+</svg>
