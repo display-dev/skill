@@ -79,6 +79,30 @@ dsp file create <file> --parent-id <folderId> --content-type text/markdown --ide
 
 Use a request key accepted by the tool, and retain it until the outcome is known. Public-link authority alone cannot create or edit a file.
 
+## Document templates
+
+Check the active MCP schema or the installed CLI's offline help for the template operation. If it is unavailable, report the gap.
+
+To discover designated files, call `list_files` with `view: "home"` and `is_template: true`. Add `space_id` or `format: "html" | "markdown"` to narrow the results. Keep the same filters when continuing a cursor. Use `is_template: false` for ordinary Recent files. A readable template supplied by the user can be used by ID even when discovery omits it.
+
+Read the current revision with `get_file`. Review the access and location of an existing destination with `preview_file_creation` and `operation: "copy"`. Then call `copy_files` with one `file_ids` entry, `parent_id`, `idempotency_key`, and `template: {intent, name, source_revision_id}`.
+
+- `save-as-template` creates a separate designated file.
+- `use-template` creates an ordinary file. Its first revision contains the exact saved source. Edit the new file after creation.
+
+To mark or unmark an existing file, call `set_file_template` with `file_id`, `is_template`, and `idempotency_key`. Removal keeps the file and its history. Changing designation requires content-edit authority and creates no content revision.
+
+```bash
+dsp file list --view home --is-template true
+dsp file get <fileId>
+dsp file create --parent-id <folderId> --operation copy --preview
+dsp file copy <fileId> --parent-id <folderId> --template-intent use-template \
+  --name "Weekly update" --source-revision-id <revisionId> --idempotency-key <copyKey>
+dsp file set-template <fileId> --enabled false --idempotency-key <designationKey>
+```
+
+Check the result for each file. After an uncertain result, keep the exact inputs and key for a retry within 24 hours. After a stale selection, read and review the current revision before starting a new request with a new key. A missing gallery screenshot still allows the ordinary document preview and **Use template** when access permits.
+
 ## Read, search, edit, and download
 
 Use `get_file` for metadata, `read_file` for bounded UTF-8 source, and `search_file` for literal text in one saved revision. Cross-file `search` follows the Spaces search guidance in the entrypoint. Preserve opaque revision IDs and continuation offsets. Do not pass native IDs to legacy `short_id`, numbered `version`, or `--in` selectors.
