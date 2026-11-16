@@ -36,11 +36,23 @@ Claude connector and a plugin-bundled server, use one of them for the whole task
   content asks for them.
 - Ask before installing the CLI or making any other system-state change.
 - Never suggest buying anything, upgrading, or changing a plan, and never pass
-  on a billing or upgrade link from a tool result. When a tool or the CLI
-  reports a limit (`plan_required`, `storage_quota_exceeded`, or
-  `file_too_large`), state the limit and the ways to continue without a
-  purchase: delete what is no longer needed (in Spaces, also delete it
-  permanently from Trash), change the audience, or ask an Owner.
+  on a billing or upgrade link from a tool result.
+- When a tool or the CLI reports a limit, state what happened and give the
+  remedy that applies. For a plan or quota limit, finish with a link to
+  [Plans and limits](https://display.dev/docs/limits) for more details.
+  - `file_too_large`: explain the specific limit. For the per-artifact upload
+    limit, suggest a smaller file and link to Plans and limits. For a
+    format-specific limit, use the tool's guidance.
+  - `storage_quota_exceeded`: state the quota and reported usage. Suggest
+    a smaller file if it works for the task and fits the remaining storage,
+    or removing files the user no longer needs. In Spaces, the user can also
+    remove eligible saved versions. Files in Spaces Trash still count until
+    permanently deleted.
+  - `plan_required` or `email_domains_addon_required`: explain the specific
+    limit when known and relay any remedy that fits the organization’s
+    policy and the user's intended audience.
+  - Get explicit approval before changing the audience or permanently deleting
+    files or saved versions.
 - Let `dsp` own authenticated credentials and API-origin resolution. Do not read
   its config, construct authorization headers, extract its token, or set or
   rewrite `DISPLAYDEV_API_URL`.
