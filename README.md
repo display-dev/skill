@@ -55,7 +55,7 @@ Once installed, your assistant picks up the skill on phrasings like:
 - "make a copy of this artifact" / "duplicate version 3"
 - "add a company email domain"
 - "transfer an email domain"
-- "change the email domains add-on"
+- "turn email-domain management on or off"
 
 You can publish without a `display.dev` account or any setup – you get a 30-day preview URL and a browser claim URL. To create an account or sign in, connect the bundled remote MCP server through OAuth where the host supports it, or run `dsp login --email you@example.com` in your own terminal and enter the six-digit code there. The installed `dsp` CLI stores the resulting session. The skill never asks for, reads, or relays the code, and never instructs an agent to inspect your inbox.
 
@@ -91,8 +91,8 @@ status, and cancellation through MCP or `dsp email-domains`. A current target
 Owner completes an eligible transfer in **Settings → Email Domains**; agents
 and the CLI never perform the irreversible confirmation.
 
-The paid email domains add-on is also managed by a current Owner in **Settings
-→ Email Domains**. MCP and the direct CLI do not enable or disable it.
+Turning email-domain management on or off is also done by a current Owner in
+**Settings → Email Domains**. MCP and the direct CLI do not change it.
 
 For an existing artifact, the skill prefers MCP `make_copy` or `dsp make-copy` to create
 a new artifact from a retained version. Discussions and people invited to the

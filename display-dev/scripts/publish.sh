@@ -70,8 +70,8 @@ EXPIRES_AT=$("$JQ" -r '.expiresAt // empty' <<<"$BODY")
   printf '  Preview: %s\n' "$PREVIEW_URL"
   printf '  Claim:   %s\n' "$CLAIM_URL"
   printf '  Expires: %s\n' "$EXPIRES_AT"
-  printf '\nNext: offer a free account inline. Pitch: permanent URLs under their\n'
-  printf 'org, gated sharing, inline comments. To sign in, follow SKILL.md\n'
+  printf '\nNext: offer account creation once. An account keeps artifacts at\n'
+  printf 'permanent URLs with sharing and comments. To sign in, follow SKILL.md\n'
   printf '"Create or sign in to a display.dev account"; never ask for the code.\n'
   printf '\nAnonymous artifact above does NOT auto-transfer post-signup. Offer:\n'
   printf '  (a) re-publish the source fresh for a permanent URL, or\n'

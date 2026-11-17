@@ -227,8 +227,7 @@ REQUIRED_ARTIFACT_WORKFLOW=(
   'Do not also pass `content` or `format`.'
   'The capability expires after 15 minutes.'
   'Do not finalize the same staged create concurrently.'
-  '10MB on'
-  '50MB on Solo, Pro, and Enterprise'
+  'limit still applies, including when that limit changes'
   'use `dsp publish`'
 )
 for instruction in "${REQUIRED_ARTIFACT_WORKFLOW[@]}"; do
@@ -255,14 +254,14 @@ done
 pass 'organization access-policy denials keep audience decisions with the user'
 
 REQUIRED_EMAIL_DOMAIN_WORKFLOW=(
-  'The paid email domains add-on is human-operated.'
+  'human-operated. Neither MCP nor the direct CLI can change it.'
   'Neither MCP nor the direct CLI'
   'Settings → Email Domains'
   'Do not call the REST endpoint as a fallback'
 )
 for instruction in "${REQUIRED_EMAIL_DOMAIN_WORKFLOW[@]}"; do
   grep -F "$instruction" "$STANDALONE" >/dev/null \
-    || fail "standalone skill omits email-domain billing instruction: $instruction"
+    || fail "standalone skill omits email-domain setting instruction: $instruction"
 done
 FORBIDDEN_EMAIL_DOMAIN_BILLING=(
   'enable_email_domains_addon'
