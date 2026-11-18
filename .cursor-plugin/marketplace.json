@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Display for Cursor. The AI docs workspace that’s open to all agents and people. Any agent publishes HTML or Markdown to a private URL. Your team comments and edits on the page, and Spaces and search keep every doc in reach. Never pay for seats.",
-    "version": "0.10.7"
+    "version": "0.10.8"
   },
   "plugins": [
     {
