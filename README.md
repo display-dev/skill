@@ -154,3 +154,11 @@ For organizations that use Spaces, the skill covers destination previews, file a
 Read `display-dev/references/spaces.md` for current access, credential limits and retry rules. The skill never installs or updates the CLI without approval.
 
 The Claude publish guard scans supported legacy publish inputs. It does not scan every native create/update, staged upload or sharing action.
+
+## Import Word files
+
+Convert Word (`.docx`) files up to 10 MiB to editable Markdown or HTML in an
+organization using Spaces. The skill uses `create_file` for a new document or
+`update_file` to replace an existing Markdown document at the same URL. It
+checks the current tool schema and retains the source, base revision and key
+for retries. See the [Word workflow](display-dev/references/docx-import.md).

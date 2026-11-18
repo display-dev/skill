@@ -3,11 +3,11 @@ name: display-dev
 description: >
   Publish HTML/Markdown to Display, or work with Spaces files and folders.
   Use for publishing, sharing, browsing, sorting, search, bounded reads, exact edits,
-  destination previews, document templates, uploads/downloads, history, Trash, access requests,
+  Word import, destination previews, document templates, uploads/downloads, history, Trash, access requests,
   Shared-Space management, key access, member deactivation, comments, watches,
   Inbox, notification preferences, Following, signup/claim, header visibility, or company domains.
   Triggers include "publish this", "share with the org", "find a file",
-  "create a folder", "edit this passage", "inspect file history",
+  "import Word", "create a folder", "edit this passage", "inspect file history",
   "save as template", "use this template", "set header visibility", "collapse the document header by default", or
   "respond to comments", "check my Inbox", "turn off update emails", or
   "unfollow this thread". Use for Display artifact URLs (*.dsp.so/*).
@@ -98,6 +98,12 @@ notification preferences, or following files and threads, read
 When the user wants documents to start with the header open or collapsed,
 read [references/header-visibility.md](references/header-visibility.md).
 
+## Convert a Word file
+
+When `create_file` or `update_file` lists `convert_from`, use the
+[Word file workflow](references/docx-import.md). Check the actual schema before
+using conversion. Keep native upload separate from intentional conversion.
+
 ## Publish anonymously
 
 When packaged helpers are present:
@@ -133,7 +139,7 @@ publish_displaydev_anonymous() {
 
   curl -sS -X POST 'https://api.display.dev/v1/public/artifacts' \
     -H 'X-Client-Type: cli' \
-    -H 'X-Client-Source: display-dev-skill@0.10.8' \
+    -H 'X-Client-Source: display-dev-skill@0.11.0' \
     -F "file=@$file"
 }
 
@@ -164,8 +170,8 @@ Use the helper when present:
 Or use the installed CLI directly:
 
 ```bash
-dsp publish --client-source display-dev-skill@0.10.8 "/absolute/path/draft.html" --name "Q1 draft"
-dsp publish --client-source display-dev-skill@0.10.8 "/absolute/path/report.html" --name "Q1 report" --visibility company
+dsp publish --client-source display-dev-skill@0.11.0 "/absolute/path/draft.html" --name "Q1 draft"
+dsp publish --client-source display-dev-skill@0.11.0 "/absolute/path/report.html" --name "Q1 report" --visibility company
 ```
 
 Authenticated output prints the canonical artifact URL. Report that exact URL;
@@ -255,7 +261,7 @@ ask for, read, or relay the sign-in code. Tell the user to run this in their
 own terminal:
 
 ```text
-dsp login --client-source display-dev-skill@0.10.8
+dsp login --client-source display-dev-skill@0.11.0
 ```
 
 The CLI asks for the email address and then for the six-digit code it emails;
@@ -295,8 +301,8 @@ Use only the audience the user requested:
 ./scripts/share.sh <shortId> --add-users "alice@example.com,bob@example.com"
 
 # Direct installed-CLI equivalents:
-dsp share --client-source display-dev-skill@0.10.8 <shortId> --visibility company
-dsp share --client-source display-dev-skill@0.10.8 <shortId> --add-users "alice@example.com,bob@example.com"
+dsp share --client-source display-dev-skill@0.11.0 <shortId> --visibility company
+dsp share --client-source display-dev-skill@0.11.0 <shortId> --add-users "alice@example.com,bob@example.com"
 ```
 
 Private is available to user-scoped callers. Service keys and
@@ -327,7 +333,7 @@ operation key.
 Use the installed CLI when MCP `make_copy` is unavailable:
 
 ```bash
-dsp make-copy --client-source display-dev-skill@0.10.8 <shortId>[@<version>] \
+dsp make-copy --client-source display-dev-skill@0.11.0 <shortId>[@<version>] \
   --name "Copy of Q1 report" --visibility company \
   --share reviewer@example.com --json
 ```
@@ -401,11 +407,11 @@ Use the authorized MCP tools when they are registered:
 Installed-CLI equivalents are:
 
 ```bash
-dsp list --client-source display-dev-skill@0.10.8
-dsp search --client-source display-dev-skill@0.10.8 "quarterly"
-dsp get-metadata --client-source display-dev-skill@0.10.8 <shortId>
-dsp search --client-source display-dev-skill@0.10.8 "exact text" --in <shortId>@<version>
-dsp read --client-source display-dev-skill@0.10.8 <shortId>@<version> --offset <bytes> --limit <bytes>
+dsp list --client-source display-dev-skill@0.11.0
+dsp search --client-source display-dev-skill@0.11.0 "quarterly"
+dsp get-metadata --client-source display-dev-skill@0.11.0 <shortId>
+dsp search --client-source display-dev-skill@0.11.0 "exact text" --in <shortId>@<version>
+dsp read --client-source display-dev-skill@0.11.0 <shortId>@<version> --offset <bytes> --limit <bytes>
 ```
 
 Use `get_metadata` or `dsp get-metadata`, not the removed `get` interface or
@@ -428,7 +434,7 @@ edit { short_id, base_version, old_text, new_text }
 Or use the installed CLI:
 
 ```bash
-dsp edit --client-source display-dev-skill@0.10.8 <shortId> \
+dsp edit --client-source display-dev-skill@0.11.0 <shortId> \
   --base-version <version> --old "exact old text" --new "replacement text"
 ```
 
@@ -458,7 +464,7 @@ Watch with the packaged stream helper when present:
 Or list through the installed CLI:
 
 ```bash
-dsp comment --client-source display-dev-skill@0.10.8 list --artifact <shortId> --status all
+dsp comment --client-source display-dev-skill@0.11.0 list --artifact <shortId> --status all
 ```
 
 Keep the complete returned `anchor` and `createdOnVersion` with each thread.
@@ -488,7 +494,7 @@ publish the same artifact with optimistic concurrency:
 ```bash
 ./scripts/publish.sh "/exact/source/path.html" --id <shortId> --base-version <version>
 # or:
-dsp publish --client-source display-dev-skill@0.10.8 "/exact/source/path.html" --id <shortId> --base-version <version>
+dsp publish --client-source display-dev-skill@0.11.0 "/exact/source/path.html" --id <shortId> --base-version <version>
 ```
 
 Then reply to or resolve only that artifact's thread:
@@ -498,8 +504,8 @@ Then reply to or resolve only that artifact's thread:
 ./scripts/thread-resolve.sh --root <rootCommentId>
 
 # Direct installed-CLI equivalents:
-dsp comment --client-source display-dev-skill@0.10.8 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
-dsp thread --client-source display-dev-skill@0.10.8 resolve <rootCommentId>
+dsp comment --client-source display-dev-skill@0.11.0 add --artifact <shortId> --parent <rootCommentId> --body "Addressed in vN."
+dsp thread --client-source display-dev-skill@0.11.0 resolve <rootCommentId>
 ```
 
 On a version conflict, inspect the newly current version with `get_metadata`,
