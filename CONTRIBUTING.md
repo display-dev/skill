@@ -195,6 +195,23 @@ connection in Connected apps. Remove the copy afterwards. Cursor Marketplace
 review re-checks every update, so Marketplace users get a release only after
 Cursor approves it.
 
+Cursor keeps only one plugin MCP server for each URL. An imported Display
+plugin can hide the local candidate's server. Check **Settings → Tools & MCPs →
+Plugin MCP Servers**: the candidate is `display`, as named in `cursor/mcp.json`;
+the imported Claude plugin is `display-dev`.
+
+In Cursor 3.7.27, turning off **Include third-party Plugins, Skills, and other
+configs** also hides local plugin commands and skills. Keep it on when checking
+`/display-feedback`. Type `/`, then `display-feedback`, and select the command
+from the picker; pasted command text alone does not prove registration.
+
+If the imported server hides the candidate, first invoke the local command
+with imports on and stop before document changes. Then temporarily turn imports
+off, reload, confirm the server is `display`, and continue the same chat through
+the bundled MCP server. Record command discovery and MCP execution separately.
+This setting also pauses imported hooks. Restore it after the smoke, remove the
+local copy, and revoke only the connection created for the test.
+
 Clean-room testing cannot prove that published release URLs, the
 `/.well-known/agent-skills/` projection, or downstream scanners are correct.
 Verify those separately after the release is live.
