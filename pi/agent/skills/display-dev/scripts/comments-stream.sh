@@ -161,8 +161,26 @@ if [[ $PRIME_NEEDED -eq 1 ]]; then
     echo "comments-stream.sh: priming call failed; cannot watch artifact=$ARTIFACT" >&2
     exit 1
   fi
-  printf '%s' "$INIT_BODY" \
-    | "$JQ" -r '.data[]? | (., (.replies // [])[]) | .id' >> "$SEEN" || true
+  if ! INIT_IDS=$(printf '%s' "$INIT_BODY" | "$JQ" -sr '
+    if length != 1 or (.[0] | type) != "object" or (.[0].data | type) != "array" then
+      error("invalid comments response")
+    else
+      .[0].data[] | (., (.replies // [])[])
+      | if type != "object"
+          or (.id | type) != "string"
+          or .id == ""
+          or (.body | type) != "string"
+        then error("invalid comment object")
+        else .
+        end | .id
+    end
+  '); then
+    echo "comments-stream.sh: invalid priming response; cannot watch artifact=$ARTIFACT" >&2
+    exit 1
+  fi
+  if [[ -n "$INIT_IDS" ]]; then
+    printf '%s\n' "$INIT_IDS" >> "$SEEN"
+  fi
 fi
 
 echo "comments-stream.sh: watching artifact=$ARTIFACT since=$START_ISO interval=${INTERVAL}s sentinel=\"$SENTINEL\" seen=$SEEN${EXIT_AFTER:+ exit-after=$EXIT_AFTER}" >&2
@@ -188,6 +206,27 @@ while true; do
     # Flatten root + replies into individual comment objects, drop
     # self-replies via the sentinel filter, emit as compact JSON.
     # Downstream dedupe is on `id`.
+    # Parse the complete response before emitting comments or advancing
+    # the cursor. A failed parse must leave the current cursor intact.
+    if ! COMMENTS=$(printf '%s' "$BODY" | "$JQ" -sc --arg sentinel "$SENTINEL" '
+      if length != 1 or (.[0] | type) != "object" or (.[0].data | type) != "array" then
+        error("invalid comments response")
+      else
+        .[0].data[] | (., (.replies // [])[])
+      | if type != "object"
+          or (.id | type) != "string"
+          or .id == ""
+          or (.body | type) != "string"
+        then error("invalid comment object")
+        else .
+        end
+        | select($sentinel == "" or (.body | startswith($sentinel) | not))
+      end
+    '); then
+      echo "comments-stream.sh: invalid comment response; retrying with unchanged cursor" >&2
+      sleep "$INTERVAL"
+      continue
+    fi
     while IFS= read -r line; do
       [[ -z "$line" ]] && continue
       # Extract id with a regex rather than re-invoking jq per line —
@@ -208,10 +247,7 @@ while true; do
           exit 0
         fi
       fi
-    done < <(printf '%s' "$BODY" | "$JQ" -c --arg sentinel "$SENTINEL" '
-      .data[]? | (., (.replies // [])[])
-      | select($sentinel == "" or (.body | startswith($sentinel) | not))
-    ' 2>/dev/null || true)
+    done <<< "$COMMENTS"
     # Advance the cursor only on a successful tick. Transient failures
     # (network, server hiccup) leave SINCE unchanged so the next tick
     # backfills automatically.

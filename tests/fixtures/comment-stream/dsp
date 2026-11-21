@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${TEST_STATE:?}"
+: "${TEST_SCENARIO:?}"
+
+n=0
+if [[ -f "$TEST_STATE/calls" ]]; then
+  n=$(cat "$TEST_STATE/calls")
+fi
+n=$((n + 1))
+
+printf '%s' "$n" > "$TEST_STATE/calls"
+printf '%s\n' "$*" >> "$TEST_STATE/args"
+
+case "$n" in
+  1)
+    case "$TEST_SCENARIO" in
+      malformed) printf '%s\n' '{"data":[' ;;
+      empty) printf '' ;;
+      missing-data) printf '%s\n' '{}' ;;
+      null-data) printf '%s\n' '{"data":null}' ;;
+      multiple) printf '%s\n' '{"data":[]}' '{"data":[]}' ;;
+      missing-id) printf '%s\n' '{"data":[{"body":"feedback"}]}' ;;
+      empty-id) printf '%s\n' '{"data":[{"id":"","body":"feedback"}]}' ;;
+      invalid-body) printf '%s\n' '{"data":[{"id":"comment-1","body":null}]}' ;;
+      network) exit 1 ;;
+      valid-empty) printf '%s\n' '{"data":[]}' ;;
+      *) exit 2 ;;
+    esac
+    ;;
+  2)
+    printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback"},{"id":"bot-comment","body":"[claude-bot] Automated reply"},{"id":"new-comment","body":"Reviewer feedback"}],"nextCursor":null}'
+    ;;
+  *)
+    exit 1
+    ;;
+esac
