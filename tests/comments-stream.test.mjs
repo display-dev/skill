@@ -16,7 +16,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures = join(root, 'tests/fixtures/comment-stream');
 const script = join(root, 'display-dev/scripts/comments-stream.sh');
 
-function runStream(scenario, resume = true) {
+function runStream(scenario, resume = true, extraArgs = []) {
   const state = mkdtempSync(join(tmpdir(), 'display-comments-'));
 
   try {
@@ -49,6 +49,7 @@ function runStream(scenario, resume = true) {
       '--seen-file', seen,
       '--interval', '0',
       '--exit-after', '1',
+      ...extraArgs,
     ], {
       env,
       encoding: 'utf8',
@@ -119,7 +120,6 @@ for (const scenario of [
   'multiple',
   'missing-id',
   'empty-id',
-  'invalid-body',
 ]) {
   test(`rejects ${scenario} priming response`, () => {
     const result = runStream(scenario, false);
@@ -131,3 +131,55 @@ for (const scenario of [
     assert.equal(result.seen, '# dsp-comments-seen v1\n');
   });
 }
+
+test('primes existing roots and replies without emitting them', () => {
+  const result = runStream('fresh-reply', false);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.calls.length, 2);
+  assert.deepEqual(JSON.parse(result.stdout), {
+    id: 'new-reply',
+    body: 'New feedback',
+  });
+
+  assert.match(result.seen, /^seen-comment$/m);
+  assert.match(result.seen, /^old-reply$/m);
+  assert.match(result.seen, /^new-reply$/m);
+});
+
+test('preserves an established cursor after a malformed poll', () => {
+  const result = runStream('established-cursor', false);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.calls.length, 3);
+  assert.match(result.calls[1], /--since 2026-11-22T10:00:01Z/);
+  assert.match(result.calls[2], /--since 2026-11-22T10:00:01Z/);
+  assert.equal(JSON.parse(result.stdout).id, 'new-comment');
+});
+
+test('does not emit or record a partially invalid batch', () => {
+  const result = runStream('partial-invalid');
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.calls.length, 2);
+  assert.equal(JSON.parse(result.stdout).id, 'new-comment');
+  assert.doesNotMatch(result.seen, /premature/);
+});
+
+test('allows sentinel filtering to be disabled', () => {
+  const result = runStream('sentinel-disabled', true, [
+    '--sentinel', '',
+  ]);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.calls.length, 1);
+  assert.equal(JSON.parse(result.stdout).id, 'bot-comment');
+});
+
+test('priming only requires comment IDs', () => {
+  const result = runStream('invalid-body', false);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.calls.length, 2);
+  assert.match(result.seen, /^comment-1$/m);
+});

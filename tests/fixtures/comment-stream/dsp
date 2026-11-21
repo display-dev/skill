@@ -16,6 +16,15 @@ printf '%s\n' "$*" >> "$TEST_STATE/args"
 case "$n" in
   1)
     case "$TEST_SCENARIO" in
+      fresh-reply|established-cursor)
+        printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":[{"id":"old-reply","body":"Old reply"}]}]}'
+        ;;
+      partial-invalid)
+        printf '%s\n' '{"data":[{"id":"premature","body":"Valid comment"},{"body":"Missing ID"}]}'
+        ;;
+      sentinel-disabled)
+        printf '%s\n' '{"data":[{"id":"bot-comment","body":"[claude-bot] Automated reply"}]}'
+        ;;
       malformed) printf '%s\n' '{"data":[' ;;
       empty) printf '' ;;
       missing-data) printf '%s\n' '{}' ;;
@@ -30,7 +39,24 @@ case "$n" in
     esac
     ;;
   2)
+    case "$TEST_SCENARIO" in
+      fresh-reply)
+        printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":[{"id":"old-reply","body":"Old reply"},{"id":"new-reply","body":"New feedback"}]}]}'
+        exit 0
+        ;;
+      established-cursor)
+        printf '%s\n' '{"data":['
+        exit 0
+        ;;
+    esac
     printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback"},{"id":"bot-comment","body":"[claude-bot] Automated reply"},{"id":"new-comment","body":"Reviewer feedback"}],"nextCursor":null}'
+    ;;
+  3)
+    if [[ "$TEST_SCENARIO" == established-cursor ]]; then
+      printf '%s\n' '{"data":[{"id":"new-comment","body":"Recovered feedback"}]}'
+      exit 0
+    fi
+    exit 1
     ;;
   *)
     exit 1

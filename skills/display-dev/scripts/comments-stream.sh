@@ -169,7 +169,6 @@ if [[ $PRIME_NEEDED -eq 1 ]]; then
       | if type != "object"
           or (.id | type) != "string"
           or .id == ""
-          or (.body | type) != "string"
         then error("invalid comment object")
         else .
         end | .id
