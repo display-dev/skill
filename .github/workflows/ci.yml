@@ -111,6 +111,9 @@ jobs:
       - name: Helper trust-boundary tests
         run: bash tests/run.sh
 
+      - name: Comment stream regression tests
+        run: node --test tests/comments-stream.test.mjs
+
       - name: Claude Code plugin hook tests
         run: bash tests/claude-hooks.sh
 
