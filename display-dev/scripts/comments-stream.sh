@@ -165,7 +165,12 @@ if [[ $PRIME_NEEDED -eq 1 ]]; then
     if length != 1 or (.[0] | type) != "object" or (.[0].data | type) != "array" then
       error("invalid comments response")
     else
-      .[0].data[] | (., (.replies // [])[])
+      .[0].data[]
+      | (., (.replies
+          | if . == null then empty
+            elif type == "array" then .[]
+            else error("invalid replies collection")
+            end))
       | if type != "object"
           or (.id | type) != "string"
           or .id == ""
@@ -211,14 +216,19 @@ while true; do
       if length != 1 or (.[0] | type) != "object" or (.[0].data | type) != "array" then
         error("invalid comments response")
       else
-        .[0].data[] | (., (.replies // [])[])
-      | if type != "object"
-          or (.id | type) != "string"
-          or .id == ""
-          or (.body | type) != "string"
-        then error("invalid comment object")
-        else .
-        end
+        .[0].data[]
+        | (., (.replies
+            | if . == null then empty
+              elif type == "array" then .[]
+              else error("invalid replies collection")
+              end))
+        | if type != "object"
+            or (.id | type) != "string"
+            or .id == ""
+            or (.body | type) != "string"
+          then error("invalid comment object")
+          else .
+          end
         | select($sentinel == "" or (.body | startswith($sentinel) | not))
       end
     '); then

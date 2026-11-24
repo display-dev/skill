@@ -16,7 +16,10 @@ printf '%s\n' "$*" >> "$TEST_STATE/args"
 case "$n" in
   1)
     case "$TEST_SCENARIO" in
-      fresh-reply|established-cursor)
+      fresh-reply)
+        printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":[{"id":"old-reply","body":"Old reply"}]},{"id":"null-replies","body":"Old thread","replies":null}]}'
+        ;;
+      established-cursor)
         printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":[{"id":"old-reply","body":"Old reply"}]}]}'
         ;;
       partial-invalid)
@@ -33,6 +36,12 @@ case "$n" in
       missing-id) printf '%s\n' '{"data":[{"body":"feedback"}]}' ;;
       empty-id) printf '%s\n' '{"data":[{"id":"","body":"feedback"}]}' ;;
       invalid-body) printf '%s\n' '{"data":[{"id":"comment-1","body":null}]}' ;;
+      false-replies)
+        printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":false}]}'
+        ;;
+      object-replies)
+        printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":{"wrong":{"id":"invalid-reply","body":"Invalid feedback"}}}]}'
+        ;;
       network) exit 1 ;;
       valid-empty) printf '%s\n' '{"data":[]}' ;;
       *) exit 2 ;;
@@ -41,7 +50,11 @@ case "$n" in
   2)
     case "$TEST_SCENARIO" in
       fresh-reply)
-        printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":[{"id":"old-reply","body":"Old reply"},{"id":"new-reply","body":"New feedback"}]}]}'
+        printf '%s\n' '{"data":[{"id":"null-replies","body":"Old thread","replies":null},{"id":"seen-comment","body":"Old feedback","replies":[{"id":"old-reply","body":"Old reply"},{"id":"new-reply","body":"New feedback"}]}]}'
+        exit 0
+        ;;
+      false-replies|object-replies)
+        printf '%s\n' '{"data":[{"id":"seen-comment","body":"Old feedback","replies":[{"id":"new-reply","body":"New feedback"}]}]}'
         exit 0
         ;;
       established-cursor)

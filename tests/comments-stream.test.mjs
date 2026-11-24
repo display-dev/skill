@@ -15,6 +15,7 @@ import test from 'node:test';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures = join(root, 'tests/fixtures/comment-stream');
 const script = join(root, 'display-dev/scripts/comments-stream.sh');
+const invalidReplyScenarios = ['false-replies', 'object-replies'];
 
 function runStream(scenario, resume = true, extraArgs = []) {
   const state = mkdtempSync(join(tmpdir(), 'display-comments-'));
@@ -112,6 +113,23 @@ test('advances cursor after a valid empty response', () => {
   assert.equal(JSON.parse(result.stdout).id, 'new-comment');
 });
 
+for (const scenario of invalidReplyScenarios) {
+  test(`retries ${scenario} with the previous cursor and emits the recovered reply`, () => {
+    const result = runStream(scenario);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.calls.length, 2);
+    assert.doesNotMatch(result.calls[0], /--since/);
+    assert.equal(result.calls[1], result.calls[0]);
+    assert.deepEqual(JSON.parse(result.stdout), {
+      id: 'new-reply',
+      body: 'New feedback',
+    });
+    assert.match(result.seen, /^new-reply$/m);
+    assert.doesNotMatch(result.seen, /^invalid-reply$/m);
+  });
+}
+
 for (const scenario of [
   'malformed',
   'empty',
@@ -120,6 +138,7 @@ for (const scenario of [
   'multiple',
   'missing-id',
   'empty-id',
+  ...invalidReplyScenarios,
 ]) {
   test(`rejects ${scenario} priming response`, () => {
     const result = runStream(scenario, false);
@@ -144,6 +163,7 @@ test('primes existing roots and replies without emitting them', () => {
 
   assert.match(result.seen, /^seen-comment$/m);
   assert.match(result.seen, /^old-reply$/m);
+  assert.match(result.seen, /^null-replies$/m);
   assert.match(result.seen, /^new-reply$/m);
 });
 
